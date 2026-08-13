@@ -1,46 +1,31 @@
-import {
-  distributeImagesToColumns,
-  masonryColumnCount,
-  minColumnWidthFor,
-} from "./masonry";
+import { masonryColumnCount, splitImagesRoundRobin } from "./masonry";
 
 function assert(condition: boolean, message: string) {
   if (!condition) throw new Error(message);
 }
 
-assert(masonryColumnCount(1200, 20) === 8, "wide container with many images uses up to 8 columns");
-assert(masonryColumnCount(883, 20) === 5, "150px minimum width limits columns on a mid pane");
-assert(masonryColumnCount(1200, 3) === 3, "three images stay at three columns");
-assert(masonryColumnCount(400, 20) === 3, "narrow width still keeps three columns");
-assert(minColumnWidthFor(390) === 100, "narrow viewports use a smaller min column width");
+assert(masonryColumnCount(5) === 2, "5 images use 2 columns");
+assert(masonryColumnCount(6) === 2, "6 images use 2 columns");
+assert(masonryColumnCount(7) === 3, "7 images use 3 columns");
+assert(masonryColumnCount(10) === 4, "10 images use 4 columns");
+assert(masonryColumnCount(15) === 5, "15 images use 5 columns");
 
-const trap = distributeImagesToColumns(
-  [
-    { url: "tall", width: 100, height: 300 },
-    { url: "a", width: 100, height: 20 },
-    { url: "b", width: 100, height: 20 },
-  ],
-  2,
-  100,
-);
-assert(trap.columns[0].map((item) => item.url).join() === "tall", "tall image stays alone");
-assert(
-  trap.columns[1].map((item) => item.url).join() === "a,b",
-  "short images stack on the shorter column instead of filling in order",
-);
-assert(trap.columnHeights[0] === 300, "uses rendered pixel height, not round-robin");
-assert(trap.columnHeights[1] === 40, "stacks both short images in the short column");
+const five = splitImagesRoundRobin(["a", "b", "c", "d", "e"], 2);
+assert(five[0].join() === "a,c,e", "round-robin fills column 0 in order");
+assert(five[1].join() === "b,d", "round-robin fills column 1 in order");
 
-const many = Array.from({ length: 20 }, (_, index) => ({
-  url: String(index),
-  width: 100,
-  height: 140,
-}));
-const few = distributeImagesToColumns(many, 3, 100);
-const packed = distributeImagesToColumns(many, 8, 100);
+const ten = splitImagesRoundRobin(Array.from({ length: 10 }, (_, i) => i), 4);
 assert(
-  Math.max(...packed.columnHeights) < Math.max(...few.columnHeights),
-  "more columns reduce the tallest stack for many images",
+  ten.every((column) => column.length === 2 || column.length === 3),
+  "10 images split evenly across 4 columns",
+);
+assert(ten.flat().join() !== "0,1,2,3,4,5,6,7,8,9" || ten[0][0] === 0, "keeps original order");
+assert(ten[0][0] === 0 && ten[1][0] === 1 && ten[2][0] === 2 && ten[3][0] === 3, "starts in order");
+
+const fifteen = splitImagesRoundRobin(Array.from({ length: 15 }, (_, i) => i), 5);
+assert(
+  fifteen.every((column) => column.length === 3),
+  "15 images split into 3 per column",
 );
 
 console.log("masonry tests passed");
