@@ -46,16 +46,6 @@ export default async function WorkPage({
           >
             ← 목록으로
           </Link>
-          {project.thumbnail_url ? (
-            <div className="mt-6 overflow-hidden bg-neutral-100">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={project.thumbnail_url}
-                alt={project.title}
-                className="block h-auto w-full"
-              />
-            </div>
-          ) : null}
           <p className="mt-6 max-w-full break-words text-xs tracking-[0.18em] text-neutral-400">
             Design for {brandLabel}
           </p>
@@ -92,6 +82,16 @@ export default async function WorkPage({
                   </p>
                 </div>
               ) : null}
+            </div>
+          ) : null}
+          {project.thumbnail_url ? (
+            <div className="mt-8 overflow-hidden bg-neutral-100">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={project.thumbnail_url}
+                alt={project.title}
+                className="block h-auto w-full"
+              />
             </div>
           ) : null}
         </aside>

@@ -1,13 +1,11 @@
 export const MASONRY_TARGET_WIDTH = 220;
 
-export function masonryColumnCount(containerWidth: number, imageCount: number) {
-  if (containerWidth <= 0 || imageCount <= 0) return 1;
-  const maxByWidth = Math.max(
+export function masonryColumnCount(containerWidth: number, _imageCount = 0) {
+  const calculated = Math.max(
     1,
-    Math.floor(containerWidth / MASONRY_TARGET_WIDTH),
+    Math.floor(Math.max(containerWidth, 0) / MASONRY_TARGET_WIDTH),
   );
-  const maxByContent = Math.max(1, Math.ceil(imageCount / 2));
-  return Math.min(imageCount, maxByWidth, maxByContent);
+  return Math.max(3, calculated);
 }
 
 export function distributeMasonry<T extends { ratio: number }>(

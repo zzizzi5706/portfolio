@@ -5,9 +5,10 @@ function assert(condition: boolean, message: string) {
 }
 
 assert(masonryColumnCount(939, 8) === 4, "900px+ container should get ~4 columns");
-assert(masonryColumnCount(939, 1) === 1, "one image should use one column");
-assert(masonryColumnCount(939, 3) === 2, "three images should pack into two columns");
-assert(masonryColumnCount(390, 8) === 1, "narrow container stays at one column");
+assert(masonryColumnCount(939, 1) >= 3, "one or two images still keep three columns");
+assert(masonryColumnCount(660, 2) === 3, "narrower width still floors at three columns");
+assert(masonryColumnCount(390, 8) === 3, "narrow containers still keep three columns");
+assert(masonryColumnCount(1100, 15) >= 3, "sliced long images stay at least three columns");
 
 const tall = { src: "a", ratio: 2 };
 const square = { src: "b", ratio: 1 };

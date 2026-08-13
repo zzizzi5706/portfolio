@@ -45,8 +45,8 @@ body {
   align-items: flex-start;
   width: 100%;
   box-sizing: border-box;
-  gap: 12px;
-  padding: 8px 8px 8px 0;
+  gap: 16px;
+  padding: 16px 28px;
 }
 
 .work-masonry-col {
@@ -58,12 +58,6 @@ body {
   display: block;
   width: 100%;
   height: auto;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   object-fit: initial;
-}
-
-@media (max-width: 1199px) {
-  .work-masonry {
-    padding: 8px;
-  }
 }
