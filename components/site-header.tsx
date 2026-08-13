@@ -38,7 +38,7 @@ export function SiteHeader() {
       }`}
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <Link href="/" className="text-sm tracking-[0.18em] font-medium">
+        <Link href="/" className="text-sm font-medium tracking-wide">
           {site.nameEn}
         </Link>
         <nav className="flex items-center gap-6 text-[13px] tracking-wide">

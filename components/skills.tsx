@@ -1,3 +1,4 @@
+import { SkillIcon } from "@/components/skill-icons";
 import { skills } from "@/lib/site";
 
 export function Skills() {
@@ -13,8 +14,11 @@ export function Skills() {
         <ul className="mt-16 max-w-2xl space-y-7">
           {skills.map((skill) => (
             <li key={skill.name}>
-              <div className="mb-2 flex items-baseline justify-between text-sm">
-                <span>{skill.name}</span>
+              <div className="mb-2 flex items-center justify-between text-sm">
+                <span className="flex items-center gap-2.5">
+                  <SkillIcon id={skill.icon} />
+                  <span>{skill.name}</span>
+                </span>
                 <span className="text-neutral-400">{skill.level}%</span>
               </div>
               <div className="h-px bg-neutral-200">
