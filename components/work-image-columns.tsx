@@ -62,10 +62,17 @@ export function WorkImageColumns({
   }, [imageKey]);
 
   const columnCount = masonryColumnCount(containerWidth, sized.length);
-  const columns = useMemo(
-    () => (sized.length ? distributeMasonry(sized, columnCount) : []),
-    [sized, columnCount],
-  );
+  const columns = useMemo(() => {
+    if (!sized.length || !containerWidth) return [];
+    const gap = 16;
+    const paddingX = 56;
+    const innerWidth = Math.max(0, containerWidth - paddingX);
+    const columnWidth = Math.max(
+      1,
+      (innerWidth - gap * Math.max(0, columnCount - 1)) / columnCount,
+    );
+    return distributeMasonry(sized, columnCount, gap / columnWidth);
+  }, [sized, columnCount, containerWidth]);
 
   if (images.length === 0) {
     return (

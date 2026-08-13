@@ -85,13 +85,9 @@ export default async function WorkPage({
             </div>
           ) : null}
           {project.thumbnail_url ? (
-            <div className="mt-8 overflow-hidden bg-neutral-100">
+            <div className="work-thumb mt-8">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={project.thumbnail_url}
-                alt={project.title}
-                className="block h-auto w-full"
-              />
+              <img src={project.thumbnail_url} alt={project.title} />
             </div>
           ) : null}
         </aside>
