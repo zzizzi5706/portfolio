@@ -1,21 +1,26 @@
-export const MASONRY_TARGET_WIDTH = 220;
-export const MASONRY_MIN_COLUMNS = 3;
-export const MASONRY_MAX_COLUMNS_WHEN_FEW = 4;
-export const MASONRY_FEW_IMAGE_LIMIT = 10;
+export const MIN_COLUMN_WIDTH = 150;
+export const MIN_COLUMN_WIDTH_NARROW = 100;
+export const MIN_COLUMNS = 3;
+export const MAX_COLUMNS = 8;
 
-export function masonryColumnCount(containerWidth: number, imageCount = 0) {
-  const byWidth = Math.max(
-    1,
-    Math.floor(Math.max(containerWidth, 0) / MASONRY_TARGET_WIDTH),
-  );
-  let count = Math.max(MASONRY_MIN_COLUMNS, byWidth);
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
 
-  if (imageCount > 0 && imageCount < MASONRY_FEW_IMAGE_LIMIT) {
-    count = Math.min(count, MASONRY_MAX_COLUMNS_WHEN_FEW);
-    count = Math.min(count, Math.max(MASONRY_MIN_COLUMNS, Math.ceil(imageCount / 2)));
-  }
+export function minColumnWidthFor(containerWidth: number) {
+  return containerWidth < 768 ? MIN_COLUMN_WIDTH_NARROW : MIN_COLUMN_WIDTH;
+}
 
-  return count;
+export function masonryColumnCount(
+  containerWidth: number,
+  imageCount = 0,
+  minColumnWidth = MIN_COLUMN_WIDTH,
+) {
+  const byWidth = Math.floor(Math.max(containerWidth, 0) / minColumnWidth);
+  const maxByImages =
+    imageCount > 0 ? Math.max(MIN_COLUMNS, imageCount) : MAX_COLUMNS;
+
+  return clamp(byWidth, MIN_COLUMNS, Math.min(MAX_COLUMNS, maxByImages));
 }
 
 export function shortestColumnIndex(heights: number[]) {

@@ -2,7 +2,11 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { distributeMasonry, masonryColumnCount } from "@/lib/masonry";
+import {
+  distributeMasonry,
+  masonryColumnCount,
+  minColumnWidthFor,
+} from "@/lib/masonry";
 
 type SizedImage = {
   src: string;
@@ -61,18 +65,22 @@ export function WorkImageColumns({
     };
   }, [imageKey]);
 
-  const columnCount = masonryColumnCount(containerWidth, sized.length);
+  const paddingX = 56;
+  const gap = 16;
+  const innerWidth = Math.max(0, containerWidth - paddingX);
+  const columnCount = masonryColumnCount(
+    innerWidth,
+    sized.length,
+    minColumnWidthFor(containerWidth),
+  );
   const columns = useMemo(() => {
-    if (!sized.length || !containerWidth) return [];
-    const gap = 16;
-    const paddingX = 56;
-    const innerWidth = Math.max(0, containerWidth - paddingX);
+    if (!sized.length || !innerWidth) return [];
     const columnWidth = Math.max(
       1,
       (innerWidth - gap * Math.max(0, columnCount - 1)) / columnCount,
     );
     return distributeMasonry(sized, columnCount, gap / columnWidth);
-  }, [sized, columnCount, containerWidth]);
+  }, [sized, columnCount, innerWidth]);
 
   if (images.length === 0) {
     return (
