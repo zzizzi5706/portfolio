@@ -7,7 +7,7 @@ export async function getProjects(): Promise<Project[]> {
   const { data, error } = await createServerClient()
     .from("projects")
     .select(
-      "id, title, category, description, thumbnail_url, images, display_order, participation, project_year",
+      "id, title, category, description, thumbnail_url, images, display_order, brand, participation, project_year",
     )
     .order("display_order", { ascending: true });
 
@@ -25,7 +25,7 @@ export async function getProject(id: string): Promise<Project | null> {
   const { data, error } = await createServerClient()
     .from("projects")
     .select(
-      "id, title, category, description, thumbnail_url, images, display_order, participation, project_year",
+      "id, title, category, description, thumbnail_url, images, display_order, brand, participation, project_year",
     )
     .eq("id", id)
     .maybeSingle();

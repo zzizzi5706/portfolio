@@ -18,6 +18,7 @@ type ProjectForm = {
   title: string;
   category: ProjectCategory;
   description: string;
+  brand: string;
   participation: string;
   project_year: string;
   thumbnail_url: string;
@@ -31,6 +32,7 @@ const emptyForm: ProjectForm = {
   title: "",
   category: "packaging",
   description: "",
+  brand: "",
   participation: "",
   project_year: "",
   thumbnail_url: "",
@@ -75,6 +77,7 @@ export function ProjectsManager() {
       title: project.title,
       category: project.category,
       description: project.description ?? "",
+      brand: project.brand ?? "",
       participation: project.participation ?? "",
       project_year: project.project_year ?? "",
       thumbnail_url: project.thumbnail_url ?? "",
@@ -109,6 +112,7 @@ export function ProjectsManager() {
         title: form.title,
         category: form.category,
         description: form.description || null,
+        brand: form.brand || null,
         participation: form.participation || null,
         project_year: form.project_year || null,
         thumbnail_url: thumbnailUrl || null,
@@ -214,6 +218,17 @@ export function ProjectsManager() {
             value={form.title}
             onChange={(event) =>
               setForm((prev) => ({ ...prev, title: event.target.value }))
+            }
+            className={inputClass}
+          />
+        </label>
+        <label className="block text-xs text-neutral-500">
+          브랜드 / 클라이언트
+          <input
+            placeholder="브랜드명"
+            value={form.brand}
+            onChange={(event) =>
+              setForm((prev) => ({ ...prev, brand: event.target.value }))
             }
             className={inputClass}
           />

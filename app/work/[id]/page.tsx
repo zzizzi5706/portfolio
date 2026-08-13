@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProject } from "@/lib/supabase/queries";
+import { CATEGORY_LABELS } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -31,22 +32,22 @@ export default async function WorkPage({
   if (!project) notFound();
 
   const images = (project.images ?? []).filter(Boolean);
-  const timeline = [project.participation, project.project_year]
-    .filter(Boolean)
-    .join(" / ");
+  const brandLabel = project.brand?.trim() || CATEGORY_LABELS[project.category];
+  const hasParticipation = Boolean(project.participation?.trim());
+  const hasYear = Boolean(project.project_year?.trim());
 
   return (
-    <main className="pt-16">
-      <article className="lg:grid lg:grid-cols-[minmax(300px,42%)_1fr]">
-        <aside className="bg-background px-6 py-16 md:px-12 lg:sticky lg:top-16 lg:h-[calc(100svh-4rem)] lg:overflow-y-auto lg:px-14 lg:py-20">
+    <main>
+      <article className="lg:grid lg:grid-cols-[minmax(300px,38%)_1fr]">
+        <aside className="bg-background px-6 py-16 md:px-12 lg:sticky lg:top-0 lg:h-svh lg:overflow-y-auto lg:px-14 lg:py-20">
           <Link
             href="/#work"
             className="text-sm text-neutral-400 transition-colors hover:text-foreground"
           >
-            ← Work
+            ← 목록으로
           </Link>
           <p className="mt-14 text-xs tracking-[0.18em] text-neutral-400">
-            Design for {project.title}
+            Design for {brandLabel}
           </p>
           <h1 className="mt-5 text-3xl font-medium leading-tight tracking-tight md:text-4xl lg:text-[2.6rem]">
             {project.title}
@@ -56,12 +57,31 @@ export default async function WorkPage({
               {project.description}
             </p>
           ) : null}
-          {timeline ? (
-            <div className="mt-14">
+          {hasParticipation || hasYear ? (
+            <div className="mt-14 space-y-5">
               <p className="text-xs tracking-[0.18em] text-neutral-400">
                 Participation & Timeline
               </p>
-              <p className="mt-3 text-sm text-neutral-600">{timeline}</p>
+              {hasParticipation ? (
+                <div>
+                  <p className="text-[11px] tracking-[0.16em] uppercase text-neutral-400">
+                    Participation
+                  </p>
+                  <p className="mt-1.5 text-sm text-neutral-600">
+                    {project.participation}
+                  </p>
+                </div>
+              ) : null}
+              {hasYear ? (
+                <div>
+                  <p className="text-[11px] tracking-[0.16em] uppercase text-neutral-400">
+                    Timeline / Year
+                  </p>
+                  <p className="mt-1.5 text-sm text-neutral-600">
+                    {project.project_year}
+                  </p>
+                </div>
+              ) : null}
             </div>
           ) : null}
         </aside>
@@ -72,7 +92,7 @@ export default async function WorkPage({
               이미지가 없습니다.
             </p>
           ) : (
-            images.map((src) => (
+            images.map((src, index) => (
               <Image
                 key={src}
                 src={src}
@@ -80,7 +100,9 @@ export default async function WorkPage({
                 width={1600}
                 height={2000}
                 className="block h-auto w-full"
-                sizes="(max-width: 1024px) 100vw, 58vw"
+                sizes="(max-width: 1024px) 100vw, 62vw"
+                loading={index === 0 ? "eager" : "lazy"}
+                priority={index === 0}
               />
             ))
           )}

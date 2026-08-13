@@ -9,11 +9,13 @@ create table if not exists public.projects (
   thumbnail_url text,
   images text[] default '{}',
   display_order int default 0,
+  brand text,
   participation text,
   project_year text
 );
 
 alter table public.projects
+  add column if not exists brand text,
   add column if not exists participation text,
   add column if not exists project_year text;
 

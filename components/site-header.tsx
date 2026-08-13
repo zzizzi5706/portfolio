@@ -25,7 +25,7 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  if (isAdmin) return null;
+  if (isAdmin || pathname.startsWith("/work")) return null;
 
   const overlay = isHome && !scrolled;
 
