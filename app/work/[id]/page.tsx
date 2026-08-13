@@ -32,42 +32,78 @@ export default async function WorkPage({
   if (!project) notFound();
 
   const images = (project.images ?? []).filter(Boolean);
+  const brandLabel = project.brand?.trim() || CATEGORY_LABELS[project.category];
+  const hasParticipation = Boolean(project.participation?.trim());
+  const hasYear = Boolean(project.project_year?.trim());
 
   return (
-    <main className="pt-24">
-      <article className="mx-auto max-w-3xl px-6 pb-24 md:pb-32">
-        <Link
-          href="/#work"
-          className="text-sm text-neutral-400 transition-colors hover:text-foreground"
-        >
-          ← Work
-        </Link>
-        <p className="mt-10 text-xs tracking-[0.22em] uppercase text-neutral-400">
-          {CATEGORY_LABELS[project.category]}
-        </p>
-        <h1 className="mt-3 text-4xl font-medium tracking-tight md:text-5xl">
-          {project.title}
-        </h1>
-        {project.description ? (
-          <p className="mt-6 whitespace-pre-line text-sm leading-7 text-neutral-500 md:text-[15px]">
-            {project.description}
+    <main>
+      <article className="lg:grid lg:grid-cols-[minmax(300px,38%)_1fr]">
+        <aside className="bg-background px-6 py-16 md:px-12 lg:sticky lg:top-0 lg:h-svh lg:overflow-y-auto lg:px-14 lg:py-20">
+          <Link
+            href="/#work"
+            className="text-sm text-neutral-400 transition-colors hover:text-foreground"
+          >
+            ← 목록으로
+          </Link>
+          <p className="mt-14 text-xs tracking-[0.18em] text-neutral-400">
+            Design for {brandLabel}
           </p>
-        ) : null}
-        <div className="mt-16 space-y-8">
+          <h1 className="mt-5 text-3xl font-medium leading-tight tracking-tight md:text-4xl lg:text-[2.6rem]">
+            {project.title}
+          </h1>
+          {project.description ? (
+            <p className="mt-8 max-w-md whitespace-pre-line text-sm leading-7 text-neutral-500">
+              {project.description}
+            </p>
+          ) : null}
+          {hasParticipation || hasYear ? (
+            <div className="mt-14 space-y-5">
+              <p className="text-xs tracking-[0.18em] text-neutral-400">
+                Participation & Timeline
+              </p>
+              {hasParticipation ? (
+                <div>
+                  <p className="text-[11px] tracking-[0.16em] uppercase text-neutral-400">
+                    Participation
+                  </p>
+                  <p className="mt-1.5 text-sm text-neutral-600">
+                    {project.participation}
+                  </p>
+                </div>
+              ) : null}
+              {hasYear ? (
+                <div>
+                  <p className="text-[11px] tracking-[0.16em] uppercase text-neutral-400">
+                    Timeline / Year
+                  </p>
+                  <p className="mt-1.5 text-sm text-neutral-600">
+                    {project.project_year}
+                  </p>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+        </aside>
+
+        <div className="bg-neutral-100">
           {images.length === 0 ? (
-            <p className="text-sm text-neutral-400">이미지가 없습니다.</p>
+            <p className="px-6 py-24 text-sm text-neutral-400">
+              이미지가 없습니다.
+            </p>
           ) : (
-            images.map((src) => (
-              <div key={src} className="overflow-hidden bg-neutral-100">
-                <Image
-                  src={src}
-                  alt={project.title}
-                  width={1600}
-                  height={2000}
-                  className="h-auto w-full"
-                  sizes="(max-width: 768px) 100vw, 768px"
-                />
-              </div>
+            images.map((src, index) => (
+              <Image
+                key={src}
+                src={src}
+                alt={project.title}
+                width={1600}
+                height={2000}
+                className="block h-auto w-full"
+                sizes="(max-width: 1024px) 100vw, 62vw"
+                loading={index === 0 ? "eager" : "lazy"}
+                priority={index === 0}
+              />
             ))
           )}
         </div>

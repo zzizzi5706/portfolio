@@ -8,8 +8,16 @@ create table if not exists public.projects (
   description text,
   thumbnail_url text,
   images text[] default '{}',
-  display_order int default 0
+  display_order int default 0,
+  brand text,
+  participation text,
+  project_year text
 );
+
+alter table public.projects
+  add column if not exists brand text,
+  add column if not exists participation text,
+  add column if not exists project_year text;
 
 create table if not exists public.careers (
   id uuid primary key default gen_random_uuid(),
