@@ -18,6 +18,8 @@ type ProjectForm = {
   title: string;
   category: ProjectCategory;
   description: string;
+  participation: string;
+  project_year: string;
   thumbnail_url: string;
   images: string[];
   display_order: number;
@@ -29,6 +31,8 @@ const emptyForm: ProjectForm = {
   title: "",
   category: "packaging",
   description: "",
+  participation: "",
+  project_year: "",
   thumbnail_url: "",
   images: [],
   display_order: 0,
@@ -71,6 +75,8 @@ export function ProjectsManager() {
       title: project.title,
       category: project.category,
       description: project.description ?? "",
+      participation: project.participation ?? "",
+      project_year: project.project_year ?? "",
       thumbnail_url: project.thumbnail_url ?? "",
       images: project.images ?? [],
       display_order: project.display_order ?? 0,
@@ -103,6 +109,8 @@ export function ProjectsManager() {
         title: form.title,
         category: form.category,
         description: form.description || null,
+        participation: form.participation || null,
+        project_year: form.project_year || null,
         thumbnail_url: thumbnailUrl || null,
         images: imageUrls,
         display_order: Number(form.display_order) || 0,
@@ -236,6 +244,28 @@ export function ProjectsManager() {
             value={form.description}
             onChange={(event) =>
               setForm((prev) => ({ ...prev, description: event.target.value }))
+            }
+            className={inputClass}
+          />
+        </label>
+        <label className="block text-xs text-neutral-500">
+          참여율
+          <input
+            placeholder="100% 개인 작업"
+            value={form.participation}
+            onChange={(event) =>
+              setForm((prev) => ({ ...prev, participation: event.target.value }))
+            }
+            className={inputClass}
+          />
+        </label>
+        <label className="block text-xs text-neutral-500">
+          연도 / 기간
+          <input
+            placeholder="2025"
+            value={form.project_year}
+            onChange={(event) =>
+              setForm((prev) => ({ ...prev, project_year: event.target.value }))
             }
             className={inputClass}
           />

@@ -22,6 +22,8 @@ export type Project = {
   thumbnail_url: string | null;
   images: string[] | null;
   display_order: number | null;
+  participation: string | null;
+  project_year: string | null;
 };
 
 export type Career = {
