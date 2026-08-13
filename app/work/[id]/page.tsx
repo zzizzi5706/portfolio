@@ -39,7 +39,7 @@ export default async function WorkPage({
   return (
     <main className="work-page w-full">
       <article className="grid w-full grid-cols-1 items-start min-[1200px]:grid-cols-[minmax(0,32%)_minmax(0,1fr)] min-[1200px]:gap-x-10">
-        <aside className="box-border h-auto min-w-0 w-full self-start bg-background px-6 py-10 min-[1200px]:sticky min-[1200px]:top-0 min-[1200px]:pl-8 min-[1200px]:pr-0 min-[1200px]:py-10">
+        <aside className="box-border h-auto min-w-0 w-full self-start bg-background px-6 py-8 min-[1200px]:sticky min-[1200px]:top-0 min-[1200px]:pl-8 min-[1200px]:pr-0 min-[1200px]:py-8">
           <Link
             href="/#work"
             className="text-sm text-neutral-400 transition-colors hover:text-foreground"
@@ -47,7 +47,7 @@ export default async function WorkPage({
             ← 목록으로
           </Link>
           {project.thumbnail_url ? (
-            <div className="mt-8 overflow-hidden bg-neutral-100">
+            <div className="mt-6 overflow-hidden bg-neutral-100">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={project.thumbnail_url}
@@ -56,10 +56,10 @@ export default async function WorkPage({
               />
             </div>
           ) : null}
-          <p className="mt-8 max-w-full break-words text-xs tracking-[0.18em] text-neutral-400">
+          <p className="mt-6 max-w-full break-words text-xs tracking-[0.18em] text-neutral-400">
             Design for {brandLabel}
           </p>
-          <h1 className="mt-5 max-w-full break-words text-3xl font-medium leading-tight tracking-tight md:text-4xl min-[1200px]:text-[2.4rem]">
+          <h1 className="mt-4 max-w-full break-words text-3xl font-medium leading-tight tracking-tight md:text-4xl min-[1200px]:text-[2.4rem]">
             {project.title}
           </h1>
           {project.description ? (
@@ -68,7 +68,7 @@ export default async function WorkPage({
             </p>
           ) : null}
           {hasParticipation || hasYear ? (
-            <div className="mt-10 space-y-5">
+            <div className="mt-8 space-y-6">
               <p className="text-xs tracking-[0.18em] text-neutral-400">
                 Participation & Timeline
               </p>
