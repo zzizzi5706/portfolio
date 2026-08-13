@@ -37,28 +37,28 @@ export default async function WorkPage({
   const hasYear = Boolean(project.project_year?.trim());
 
   return (
-    <main className="work-page w-full max-w-full">
-      <article className="grid w-full max-w-full grid-cols-1 min-[1200px]:grid-cols-[minmax(0,32%)_minmax(0,1fr)]">
-        <aside className="box-border min-w-0 w-full bg-background px-6 py-12 md:px-10 min-[1200px]:sticky min-[1200px]:top-0 min-[1200px]:h-svh min-[1200px]:overflow-x-hidden min-[1200px]:overflow-y-auto min-[1200px]:px-10 min-[1200px]:py-16">
+    <main className="work-page w-full">
+      <article className="grid w-full grid-cols-1 items-start min-[1200px]:grid-cols-[minmax(0,32%)_minmax(0,1fr)] min-[1200px]:gap-x-10">
+        <aside className="box-border h-auto min-w-0 w-full self-start bg-background px-6 py-10 min-[1200px]:sticky min-[1200px]:top-0 min-[1200px]:pl-8 min-[1200px]:pr-0 min-[1200px]:py-10">
           <Link
             href="/#work"
             className="text-sm text-neutral-400 transition-colors hover:text-foreground"
           >
             ← 목록으로
           </Link>
-          <p className="mt-14 max-w-full break-words text-xs tracking-[0.18em] text-neutral-400">
+          <p className="mt-10 max-w-full break-words text-xs tracking-[0.18em] text-neutral-400">
             Design for {brandLabel}
           </p>
           <h1 className="mt-5 max-w-full break-words text-3xl font-medium leading-tight tracking-tight md:text-4xl min-[1200px]:text-[2.4rem]">
             {project.title}
           </h1>
           {project.description ? (
-            <p className="mt-8 max-w-full break-words whitespace-pre-line text-sm leading-7 text-neutral-500">
+            <p className="mt-6 max-w-full break-words whitespace-pre-line text-sm leading-7 text-neutral-500">
               {project.description}
             </p>
           ) : null}
           {hasParticipation || hasYear ? (
-            <div className="mt-14 space-y-5">
+            <div className="mt-10 space-y-5">
               <p className="text-xs tracking-[0.18em] text-neutral-400">
                 Participation & Timeline
               </p>
@@ -86,7 +86,7 @@ export default async function WorkPage({
           ) : null}
         </aside>
 
-        <div className="min-w-0 w-full max-w-full overflow-x-clip bg-neutral-50 min-[1200px]:min-w-0">
+        <div className="min-w-0 w-full bg-neutral-50">
           <WorkImageColumns images={images} alt={project.title} />
         </div>
       </article>

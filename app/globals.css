@@ -31,19 +31,37 @@ body {
 }
 
 .work-page {
+  width: 100%;
+  max-width: none;
   overflow-x: clip;
-  max-width: 100%;
 }
 
 .work-image-cols {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
   width: 100%;
   box-sizing: border-box;
+  gap: 12px;
+  padding: 8px 8px 8px 0;
 }
 
 .work-image-col {
   flex: 1 1 0%;
   min-width: 0;
+  width: auto;
+}
+
+.work-image-item {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-bottom: 12px;
+  object-fit: initial;
+  aspect-ratio: auto;
+}
+
+@media (max-width: 1199px) {
+  .work-image-cols {
+    padding: 8px;
+  }
 }

@@ -42,27 +42,9 @@ export function WorkImageColumns({
   const columns = splitIntoColumns(images, count);
 
   return (
-    <div
-      className="work-image-cols"
-      data-columns={count}
-      style={{
-        display: "flex",
-        alignItems: "flex-start",
-        gap: 12,
-        width: "100%",
-        boxSizing: "border-box",
-        padding: 12,
-      }}
-    >
+    <div className="work-image-cols" data-columns={count}>
       {columns.map((column, columnIndex) => (
-        <div
-          key={columnIndex}
-          className="work-image-col"
-          style={{
-            flex: "1 1 0%",
-            minWidth: 0,
-          }}
-        >
+        <div key={columnIndex} className="work-image-col">
           {column.map((src, imageIndex) => (
             <img
               key={src}
@@ -70,14 +52,7 @@ export function WorkImageColumns({
               alt={alt}
               loading={columnIndex === 0 && imageIndex === 0 ? "eager" : "lazy"}
               decoding="async"
-              style={{
-                display: "block",
-                width: "100%",
-                height: "auto",
-                marginBottom: 12,
-                objectFit: "initial",
-                aspectRatio: "auto",
-              }}
+              className="work-image-item"
             />
           ))}
         </div>
