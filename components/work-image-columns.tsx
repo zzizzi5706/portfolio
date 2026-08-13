@@ -16,13 +16,22 @@ export function WorkImageColumns({
   return (
     <div className="work-image-masonry p-3">
       {images.map((src, index) => (
-        <img
-          key={src}
-          src={src}
-          alt={alt}
-          loading={index === 0 ? "eager" : "lazy"}
-          className="work-image-masonry-item"
-        />
+        <figure key={src} className="work-image-masonry-frame">
+          <img
+            src={src}
+            alt={alt}
+            loading={index === 0 ? "eager" : "lazy"}
+            decoding="async"
+            className="work-image-masonry-item"
+            style={{
+              width: "100%",
+              height: "auto",
+              maxHeight: "none",
+              objectFit: "initial",
+              aspectRatio: "auto",
+            }}
+          />
+        </figure>
       ))}
     </div>
   );
