@@ -17,7 +17,7 @@ export function Hero() {
         <p className="mb-5 text-xs tracking-[0.32em] uppercase opacity-80">
           {site.title}
         </p>
-        <h1 className="text-5xl font-medium tracking-tight md:text-7xl">
+        <h1 className="text-4xl font-medium tracking-tight sm:text-5xl md:text-6xl">
           {site.name}
         </h1>
         <p className="mt-6 max-w-md text-sm font-light leading-7 opacity-90 md:text-base">

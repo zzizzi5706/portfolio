@@ -13,7 +13,7 @@ export function SiteFooter() {
         <p>
           © {new Date().getFullYear()} {site.name}
         </p>
-        <p className="tracking-[0.16em] uppercase">{site.nameEn}</p>
+        <p className="tracking-wide">{site.nameEn}</p>
       </div>
     </footer>
   );
