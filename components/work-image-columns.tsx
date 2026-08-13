@@ -3,26 +3,24 @@
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  distributeMasonry,
+  distributeImagesToColumns,
   masonryColumnCount,
   minColumnWidthFor,
+  type MasonryImage,
 } from "@/lib/masonry";
 
-type SizedImage = {
-  src: string;
-  ratio: number;
-};
-
-function loadImageRatio(src: string): Promise<SizedImage> {
+function loadImageSize(url: string): Promise<MasonryImage> {
   return new Promise((resolve) => {
     const image = new window.Image();
     image.onload = () => {
-      const ratio =
-        image.naturalWidth > 0 ? image.naturalHeight / image.naturalWidth : 1;
-      resolve({ src, ratio });
+      resolve({
+        url,
+        width: image.naturalWidth || 1,
+        height: image.naturalHeight || 1,
+      });
     };
-    image.onerror = () => resolve({ src, ratio: 1 });
-    image.src = src;
+    image.onerror = () => resolve({ url, width: 1, height: 1 });
+    image.src = url;
   });
 }
 
@@ -35,7 +33,8 @@ export function WorkImageColumns({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
-  const [sized, setSized] = useState<SizedImage[]>([]);
+  const [sized, setSized] = useState<MasonryImage[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     const node = containerRef.current;
@@ -55,9 +54,13 @@ export function WorkImageColumns({
     const sources = imageKey ? imageKey.split("|") : [];
     let cancelled = false;
     setSized([]);
+    setLoaded(false);
 
-    Promise.all(sources.map(loadImageRatio)).then((next) => {
-      if (!cancelled) setSized(next);
+    Promise.all(sources.map(loadImageSize)).then((next) => {
+      if (!cancelled) {
+        setSized(next);
+        setLoaded(true);
+      }
     });
 
     return () => {
@@ -73,14 +76,27 @@ export function WorkImageColumns({
     sized.length,
     minColumnWidthFor(containerWidth),
   );
-  const columns = useMemo(() => {
-    if (!sized.length || !innerWidth) return [];
-    const columnWidth = Math.max(
+  const layout = useMemo(() => {
+    if (!sized.length || !innerWidth) {
+      return { columns: [] as MasonryImage[][], columnHeights: [] as number[] };
+    }
+    const columnWidthPx = Math.max(
       1,
       (innerWidth - gap * Math.max(0, columnCount - 1)) / columnCount,
     );
-    return distributeMasonry(sized, columnCount, gap / columnWidth);
+    return distributeImagesToColumns(sized, columnCount, columnWidthPx, gap);
   }, [sized, columnCount, innerWidth]);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "development" || !layout.columnHeights.length) {
+      return;
+    }
+    console.log("[masonry] columnHeights(px)", layout.columnHeights.map((h) => Math.round(h)));
+    console.log(
+      "[masonry] per-column image counts",
+      layout.columns.map((column) => column.length),
+    );
+  }, [layout]);
 
   if (images.length === 0) {
     return (
@@ -90,19 +106,25 @@ export function WorkImageColumns({
 
   return (
     <div ref={containerRef} className="work-masonry" data-columns={columnCount}>
-      {columns.map((column, columnIndex) => (
-        <div key={columnIndex} className="work-masonry-col">
-          {column.map((image, imageIndex) => (
-            <img
-              key={image.src}
-              src={image.src}
-              alt={alt}
-              loading={columnIndex === 0 && imageIndex === 0 ? "eager" : "lazy"}
-              decoding="async"
-            />
-          ))}
-        </div>
-      ))}
+      {!loaded ? (
+        <p className="py-16 text-sm text-neutral-400">이미지를 불러오는 중…</p>
+      ) : (
+        layout.columns.map((columnImages, columnIndex) => (
+          <div key={columnIndex} className="work-masonry-col">
+            {columnImages.map((image, imageIndex) => (
+              <img
+                key={image.url}
+                src={image.url}
+                alt={alt}
+                width={image.width}
+                height={image.height}
+                loading={columnIndex === 0 && imageIndex === 0 ? "eager" : "lazy"}
+                decoding="async"
+              />
+            ))}
+          </div>
+        ))
+      )}
     </div>
   );
 }

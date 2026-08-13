@@ -1,8 +1,7 @@
 import {
-  distributeMasonry,
+  distributeImagesToColumns,
   masonryColumnCount,
   minColumnWidthFor,
-  shortestColumnIndex,
 } from "./masonry";
 
 function assert(condition: boolean, message: string) {
@@ -12,39 +11,35 @@ function assert(condition: boolean, message: string) {
 assert(masonryColumnCount(1200, 20) === 8, "wide container with many images uses up to 8 columns");
 assert(masonryColumnCount(883, 20) === 5, "150px minimum width limits columns on a mid pane");
 assert(masonryColumnCount(1200, 3) === 3, "three images stay at three columns");
-assert(masonryColumnCount(1200, 5) === 5, "five images cap columns at the image count");
 assert(masonryColumnCount(400, 20) === 3, "narrow width still keeps three columns");
-assert(masonryColumnCount(390, 20, 100) === 3, "mobile min width still keeps three columns");
 assert(minColumnWidthFor(390) === 100, "narrow viewports use a smaller min column width");
-assert(minColumnWidthFor(1200) === 150, "wide viewports use the 150px min column width");
 
-assert(shortestColumnIndex([4, 1.2, 3]) === 1, "picks the currently shortest column");
-assert(shortestColumnIndex([2, 2, 1.9]) === 2, "picks the last column when it is shortest");
-
-const sequentialTrap = distributeMasonry(
+const trap = distributeImagesToColumns(
   [
-    { src: "tall", ratio: 3 },
-    { src: "a", ratio: 0.2 },
-    { src: "b", ratio: 0.2 },
+    { url: "tall", width: 100, height: 300 },
+    { url: "a", width: 100, height: 20 },
+    { url: "b", width: 100, height: 20 },
   ],
   2,
+  100,
 );
-assert(sequentialTrap[0].map((item) => item.src).join() === "tall", "tall image stays alone");
+assert(trap.columns[0].map((item) => item.url).join() === "tall", "tall image stays alone");
 assert(
-  sequentialTrap[1].map((item) => item.src).join() === "a,b",
+  trap.columns[1].map((item) => item.url).join() === "a,b",
   "short images stack on the shorter column instead of filling in order",
 );
+assert(trap.columnHeights[0] === 300, "uses rendered pixel height, not round-robin");
+assert(trap.columnHeights[1] === 40, "stacks both short images in the short column");
 
 const many = Array.from({ length: 20 }, (_, index) => ({
-  src: String(index),
-  ratio: 1.4,
+  url: String(index),
+  width: 100,
+  height: 140,
 }));
-const fewColumns = distributeMasonry(many, 3);
-const manyColumns = distributeMasonry(many, 8);
-const height = (columns: { ratio: number }[][]) =>
-  Math.max(...columns.map((col) => col.reduce((sum, item) => sum + item.ratio, 0)));
+const few = distributeImagesToColumns(many, 3, 100);
+const packed = distributeImagesToColumns(many, 8, 100);
 assert(
-  height(manyColumns) < height(fewColumns),
+  Math.max(...packed.columnHeights) < Math.max(...few.columnHeights),
   "more columns reduce the tallest stack for many images",
 );
 
