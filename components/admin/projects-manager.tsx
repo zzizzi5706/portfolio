@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useMemo, useState } from "react";
 import { createBrowserClient } from "@/lib/supabase/client";
+import { mergeImageFiles, sliceLongImage } from "@/lib/slice-long-image";
 import { uploadPortfolioImage } from "@/lib/supabase/storage";
 import {
   CATEGORY_LABELS,
@@ -47,6 +48,8 @@ export function ProjectsManager() {
   const [form, setForm] = useState<ProjectForm>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [slicing, setSlicing] = useState(false);
+  const [sliceCount, setSliceCount] = useState(0);
   const [message, setMessage] = useState("");
 
   async function load() {
@@ -69,6 +72,7 @@ export function ProjectsManager() {
   function reset() {
     setForm(emptyForm);
     setEditingId(null);
+    setSliceCount(0);
   }
 
   function startEdit(project: Project) {
@@ -370,6 +374,89 @@ export function ProjectsManager() {
               event.target.value = "";
             }}
           />
+          <div className="mt-6 border-t border-line pt-4">
+            <p className="text-xs text-neutral-500">긴 이미지 자동 분할</p>
+            <p className="mt-1 text-[11px] leading-5 text-neutral-400">
+              세로로 긴 상세페이지 이미지 1장을 올리면 여백을 기준으로 여러 장으로
+              나눕니다. 저장 전에 미리보기로 확인할 수 있습니다.
+            </p>
+            <input
+              type="file"
+              accept="image/*"
+              disabled={slicing}
+              className="mt-2 block text-sm"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                event.target.value = "";
+                if (!file) return;
+                void (async () => {
+                  setSlicing(true);
+                  setMessage("");
+                  try {
+                    const files = await sliceLongImage(file);
+                    setSliceCount(files.length);
+                    setForm((prev) => ({
+                      ...prev,
+                      galleryFiles: [...prev.galleryFiles, ...files],
+                    }));
+                  } catch (error) {
+                    setMessage(
+                      error instanceof Error
+                        ? error.message
+                        : "이미지 분할에 실패했습니다.",
+                    );
+                  } finally {
+                    setSlicing(false);
+                  }
+                })();
+              }}
+            />
+            {slicing ? (
+              <p className="mt-2 text-sm text-neutral-500">분할 처리 중...</p>
+            ) : null}
+            {sliceCount > 0 && !slicing ? (
+              <p className="mt-2 text-sm text-neutral-600">
+                {sliceCount}조각으로 나눴습니다. 아래 미리보기에서 확인한 뒤 저장하세요.
+              </p>
+            ) : null}
+            {form.galleryFiles.length > 1 ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {form.galleryFiles.slice(0, -1).map((file, index) => (
+                  <button
+                    key={`${file.name}-merge-${index}`}
+                    type="button"
+                    className="text-[11px] text-neutral-500 underline"
+                    onClick={() => {
+                      const next = form.galleryFiles[index + 1];
+                      if (!next) return;
+                      void (async () => {
+                        setSlicing(true);
+                        try {
+                          const merged = await mergeImageFiles(file, next);
+                          setForm((prev) => {
+                            const files = [...prev.galleryFiles];
+                            files.splice(index, 2, merged);
+                            return { ...prev, galleryFiles: files };
+                          });
+                          setSliceCount((prev) => Math.max(1, prev - 1));
+                        } catch (error) {
+                          setMessage(
+                            error instanceof Error
+                              ? error.message
+                              : "조각을 합치지 못했습니다.",
+                          );
+                        } finally {
+                          setSlicing(false);
+                        }
+                      })();
+                    }}
+                  >
+                    {index + 1} + {index + 2} 합치기
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
         </div>
         {message ? <p className="text-sm text-red-600">{message}</p> : null}
         <button
