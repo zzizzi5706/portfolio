@@ -5,7 +5,7 @@ import { site } from "@/lib/site";
 
 export function SiteFooter() {
   const pathname = usePathname();
-  if (pathname.startsWith("/admin")) return null;
+  if (pathname.startsWith("/admin") || pathname.startsWith("/work")) return null;
 
   return (
     <footer className="border-t border-line">

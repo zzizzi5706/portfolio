@@ -37,23 +37,23 @@ export default async function WorkPage({
   const hasYear = Boolean(project.project_year?.trim());
 
   return (
-    <main>
-      <article className="lg:grid lg:grid-cols-[minmax(300px,38%)_1fr]">
-        <aside className="bg-background px-6 py-16 md:px-12 lg:sticky lg:top-0 lg:h-svh lg:overflow-y-auto lg:px-14 lg:py-20">
+    <main className="work-page w-full max-w-full">
+      <article className="grid w-full max-w-full grid-cols-1 min-[1200px]:grid-cols-[minmax(0,32%)_minmax(0,1fr)]">
+        <aside className="box-border min-w-0 w-full bg-background px-6 py-12 md:px-10 min-[1200px]:sticky min-[1200px]:top-0 min-[1200px]:h-svh min-[1200px]:overflow-x-hidden min-[1200px]:overflow-y-auto min-[1200px]:px-10 min-[1200px]:py-16">
           <Link
             href="/#work"
             className="text-sm text-neutral-400 transition-colors hover:text-foreground"
           >
             ← 목록으로
           </Link>
-          <p className="mt-14 text-xs tracking-[0.18em] text-neutral-400">
+          <p className="mt-14 max-w-full break-words text-xs tracking-[0.18em] text-neutral-400">
             Design for {brandLabel}
           </p>
-          <h1 className="mt-5 text-3xl font-medium leading-tight tracking-tight md:text-4xl lg:text-[2.6rem]">
+          <h1 className="mt-5 max-w-full break-words text-3xl font-medium leading-tight tracking-tight md:text-4xl min-[1200px]:text-[2.4rem]">
             {project.title}
           </h1>
           {project.description ? (
-            <p className="mt-8 max-w-md whitespace-pre-line text-sm leading-7 text-neutral-500">
+            <p className="mt-8 max-w-full break-words whitespace-pre-line text-sm leading-7 text-neutral-500">
               {project.description}
             </p>
           ) : null}
@@ -67,7 +67,7 @@ export default async function WorkPage({
                   <p className="text-[11px] tracking-[0.16em] uppercase text-neutral-400">
                     Participation
                   </p>
-                  <p className="mt-1.5 text-sm text-neutral-600">
+                  <p className="mt-1.5 break-words text-sm text-neutral-600">
                     {project.participation}
                   </p>
                 </div>
@@ -77,7 +77,7 @@ export default async function WorkPage({
                   <p className="text-[11px] tracking-[0.16em] uppercase text-neutral-400">
                     Timeline / Year
                   </p>
-                  <p className="mt-1.5 text-sm text-neutral-600">
+                  <p className="mt-1.5 break-words text-sm text-neutral-600">
                     {project.project_year}
                   </p>
                 </div>
@@ -86,7 +86,7 @@ export default async function WorkPage({
           ) : null}
         </aside>
 
-        <div className="min-w-0 bg-neutral-50">
+        <div className="min-w-0 w-full max-w-full overflow-x-clip bg-neutral-50">
           <WorkImageColumns images={images} alt={project.title} />
         </div>
       </article>
