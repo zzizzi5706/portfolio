@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { WorkImageColumns } from "@/components/work-image-columns";
 import { getProject } from "@/lib/supabase/queries";
 import { CATEGORY_LABELS } from "@/lib/types";
 
@@ -86,26 +86,8 @@ export default async function WorkPage({
           ) : null}
         </aside>
 
-        <div className="bg-neutral-100">
-          {images.length === 0 ? (
-            <p className="px-6 py-24 text-sm text-neutral-400">
-              이미지가 없습니다.
-            </p>
-          ) : (
-            images.map((src, index) => (
-              <Image
-                key={src}
-                src={src}
-                alt={project.title}
-                width={1600}
-                height={2000}
-                className="block h-auto w-full"
-                sizes="(max-width: 1024px) 100vw, 62vw"
-                loading={index === 0 ? "eager" : "lazy"}
-                priority={index === 0}
-              />
-            ))
-          )}
+        <div className="min-w-0 bg-neutral-50">
+          <WorkImageColumns images={images} alt={project.title} />
         </div>
       </article>
     </main>
