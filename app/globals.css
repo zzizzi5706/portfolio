@@ -35,40 +35,15 @@ body {
   max-width: 100%;
 }
 
-.work-image-masonry {
-  column-count: 2;
-  column-gap: 12px;
-  column-fill: auto;
-}
-
-@media (min-width: 768px) {
-  .work-image-masonry {
-    column-count: 3;
-  }
-}
-
-@media (min-width: 1200px) {
-  .work-image-masonry {
-    column-count: 5;
-  }
-}
-
-.work-image-masonry-frame {
-  display: block;
+.work-image-cols {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
   width: 100%;
-  margin: 0 0 12px;
-  break-inside: avoid;
-  -webkit-column-break-inside: avoid;
-  page-break-inside: avoid;
+  box-sizing: border-box;
 }
 
-.work-image-masonry-item {
-  display: block;
-  width: 100%;
-  height: auto !important;
-  max-width: 100%;
-  max-height: none !important;
-  object-fit: initial !important;
-  object-position: initial !important;
-  aspect-ratio: auto !important;
+.work-image-col {
+  flex: 1 1 0%;
+  min-width: 0;
 }

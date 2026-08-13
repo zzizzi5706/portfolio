@@ -86,7 +86,7 @@ export default async function WorkPage({
           ) : null}
         </aside>
 
-        <div className="min-w-0 w-full max-w-full overflow-x-clip bg-neutral-50">
+        <div className="min-w-0 w-full max-w-full overflow-x-clip bg-neutral-50 min-[1200px]:min-w-0">
           <WorkImageColumns images={images} alt={project.title} />
         </div>
       </article>
