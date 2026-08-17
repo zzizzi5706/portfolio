@@ -1,5 +1,13 @@
+import { PLACEHOLDER_CAREERS } from "@/lib/placeholder-careers";
 import type { Career, Project } from "@/lib/types";
 import { createServerClient, isSupabaseConfigured } from "@/lib/supabase/client";
+
+function placeholderCareers(): Career[] {
+  return PLACEHOLDER_CAREERS.map((career, index) => ({
+    ...career,
+    id: `placeholder-career-${index + 1}`,
+  }));
+}
 
 export async function getProjects(): Promise<Project[]> {
   if (!isSupabaseConfigured()) return [];
@@ -39,7 +47,7 @@ export async function getProject(id: string): Promise<Project | null> {
 }
 
 export async function getCareers(): Promise<Career[]> {
-  if (!isSupabaseConfigured()) return [];
+  if (!isSupabaseConfigured()) return placeholderCareers();
 
   const { data, error } = await createServerClient()
     .from("careers")
@@ -51,10 +59,12 @@ export async function getCareers(): Promise<Career[]> {
 
   if (error) {
     console.error("Failed to load careers:", error.message);
-    return [];
+    return placeholderCareers();
   }
 
   const careers = (data ?? []) as Career[];
+  if (careers.length === 0) return placeholderCareers();
+
   return [...careers].sort((a, b) => {
     const yearA = latestYear(a.year_range);
     const yearB = latestYear(b.year_range);
