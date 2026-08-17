@@ -39,9 +39,9 @@ export type Career = {
 
 export const CATEGORY_LABELS: Record<ProjectCategory | "all", string> = {
   all: "전체",
-  packaging: "패키징",
+  packaging: "상세페이지",
   web: "웹디자인",
-  detail_page: "상세페이지",
+  detail_page: "패키징",
 };
 
 export const EMPLOYMENT_LABELS: Record<EmploymentType, string> = {
