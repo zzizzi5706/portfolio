@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { WorkImageColumns } from "@/components/work-image-columns";
-import { WorkPackagingImages } from "@/components/work-packaging-images";
+import { WorkProjectImages } from "@/components/work-layouts/work-project-images";
 import { getProject } from "@/lib/supabase/queries";
 import { CATEGORY_LABELS } from "@/lib/types";
 
@@ -94,11 +93,11 @@ export default async function WorkPage({
         </aside>
 
         <div className="image-columns-wrap min-w-0 w-full bg-neutral-50">
-          {CATEGORY_LABELS[project.category] === "패키징" ? (
-            <WorkPackagingImages images={images} alt={project.title} />
-          ) : (
-            <WorkImageColumns images={images} alt={project.title} />
-          )}
+          <WorkProjectImages
+            category={project.category}
+            images={images}
+            alt={project.title}
+          />
         </div>
       </article>
     </main>

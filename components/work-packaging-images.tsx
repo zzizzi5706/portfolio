@@ -1,7 +1,8 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element */
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
+import { useFadeInOnScroll } from "@/lib/use-fade-in-on-scroll";
 
 type CardVariant = "hero" | "square" | "portrait" | "wide";
 
@@ -21,28 +22,7 @@ export function WorkPackagingImages({
   alt: string;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
-
-    const cards = root.querySelectorAll<HTMLElement>(".packaging-card");
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.filter((entry) => entry.isIntersecting);
-        visible.forEach((entry, i) => {
-          const card = entry.target as HTMLElement;
-          card.style.transitionDelay = `${i * 70}ms`;
-          card.classList.add("is-visible");
-          observer.unobserve(card);
-        });
-      },
-      { threshold: 0.15 },
-    );
-
-    cards.forEach((card) => observer.observe(card));
-    return () => observer.disconnect();
-  }, [images]);
+  useFadeInOnScroll(rootRef, ".packaging-card", [images]);
 
   if (images.length === 0) {
     return (
@@ -55,7 +35,7 @@ export function WorkPackagingImages({
       {images.map((src, index) => (
         <figure
           key={`${src}-${index}`}
-          className={`packaging-card packaging-card--${packagingVariant(index)}`}
+          className={`packaging-card work-fade-card packaging-card--${packagingVariant(index)}`}
         >
           <img
             src={src}
