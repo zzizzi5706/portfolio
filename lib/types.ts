@@ -25,6 +25,11 @@ export type Project = {
   brand: string | null;
   participation: string | null;
   project_year: string | null;
+  project_detail: string | null;
+  category_detail: string | null;
+  channel: string | null;
+  scope: string | null;
+  role: string | null;
 };
 
 export type Career = {
@@ -43,6 +48,18 @@ export const CATEGORY_LABELS: Record<ProjectCategory | "all", string> = {
   web: "웹디자인",
   detail_page: "패키징",
 };
+
+export function isPackagingCategory(category: ProjectCategory) {
+  return CATEGORY_LABELS[category] === "패키징";
+}
+
+export const PACKAGING_META_FIELDS = [
+  { key: "project_detail", label: "PROJECT" },
+  { key: "category_detail", label: "CATEGORY" },
+  { key: "channel", label: "CHANNEL" },
+  { key: "scope", label: "SCOPE" },
+  { key: "role", label: "ROLE" },
+] as const;
 
 export const EMPLOYMENT_LABELS: Record<EmploymentType, string> = {
   regular: "정규직",

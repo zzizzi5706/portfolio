@@ -3,7 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { WorkProjectImages } from "@/components/work-layouts/work-project-images";
 import { getProject } from "@/lib/supabase/queries";
-import { CATEGORY_LABELS } from "@/lib/types";
+import {
+  CATEGORY_LABELS,
+  PACKAGING_META_FIELDS,
+  isPackagingCategory,
+} from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +37,11 @@ export default async function WorkPage({
 
   const images = (project.images ?? []).filter(Boolean);
   const brandLabel = project.brand?.trim() || CATEGORY_LABELS[project.category];
+  const packaging = isPackagingCategory(project.category);
+  const packagingMeta = PACKAGING_META_FIELDS.map((field) => ({
+    label: field.label,
+    value: project[field.key]?.trim() ?? "",
+  })).filter((field) => field.value);
   const hasParticipation = Boolean(project.participation?.trim());
   const hasYear = Boolean(project.project_year?.trim());
 
@@ -57,7 +66,21 @@ export default async function WorkPage({
               {project.description}
             </p>
           ) : null}
-          {hasParticipation || hasYear ? (
+          {packaging && packagingMeta.length > 0 ? (
+            <dl className="mt-7 space-y-5 border-t border-line pt-7">
+              {packagingMeta.map((field) => (
+                <div key={field.label}>
+                  <dt className="text-[11px] font-semibold tracking-[0.18em] text-neutral-400">
+                    {field.label}
+                  </dt>
+                  <dd className="mt-1.5 max-w-full break-words whitespace-pre-line text-base text-neutral-600">
+                    {field.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+          {!packaging && (hasParticipation || hasYear) ? (
             <div className="mt-7 space-y-5">
               <p className="text-sm tracking-[0.18em] text-neutral-400">
                 Participation & Timeline

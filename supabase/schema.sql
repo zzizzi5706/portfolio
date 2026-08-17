@@ -17,7 +17,12 @@ create table if not exists public.projects (
 alter table public.projects
   add column if not exists brand text,
   add column if not exists participation text,
-  add column if not exists project_year text;
+  add column if not exists project_year text,
+  add column if not exists project_detail text,
+  add column if not exists category_detail text,
+  add column if not exists channel text,
+  add column if not exists scope text,
+  add column if not exists role text;
 
 create table if not exists public.careers (
   id uuid primary key default gen_random_uuid(),

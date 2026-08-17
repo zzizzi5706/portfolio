@@ -8,6 +8,7 @@ import { uploadPortfolioImage } from "@/lib/supabase/storage";
 import {
   CATEGORY_LABELS,
   PROJECT_CATEGORIES,
+  isPackagingCategory,
   type Project,
   type ProjectCategory,
 } from "@/lib/types";
@@ -22,6 +23,11 @@ type ProjectForm = {
   brand: string;
   participation: string;
   project_year: string;
+  project_detail: string;
+  category_detail: string;
+  channel: string;
+  scope: string;
+  role: string;
   thumbnail_url: string;
   images: string[];
   display_order: number;
@@ -36,6 +42,11 @@ const emptyForm: ProjectForm = {
   brand: "",
   participation: "",
   project_year: "",
+  project_detail: "",
+  category_detail: "",
+  channel: "",
+  scope: "",
+  role: "",
   thumbnail_url: "",
   images: [],
   display_order: 0,
@@ -84,6 +95,11 @@ export function ProjectsManager() {
       brand: project.brand ?? "",
       participation: project.participation ?? "",
       project_year: project.project_year ?? "",
+      project_detail: project.project_detail ?? "",
+      category_detail: project.category_detail ?? "",
+      channel: project.channel ?? "",
+      scope: project.scope ?? "",
+      role: project.role ?? "",
       thumbnail_url: project.thumbnail_url ?? "",
       images: project.images ?? [],
       display_order: project.display_order ?? 0,
@@ -119,6 +135,11 @@ export function ProjectsManager() {
         brand: form.brand || null,
         participation: form.participation || null,
         project_year: form.project_year || null,
+        project_detail: form.project_detail || null,
+        category_detail: form.category_detail || null,
+        channel: form.channel || null,
+        scope: form.scope || null,
+        role: form.role || null,
         thumbnail_url: thumbnailUrl || null,
         images: imageUrls,
         display_order: Number(form.display_order) || 0,
@@ -267,28 +288,92 @@ export function ProjectsManager() {
             className={inputClass}
           />
         </label>
-        <label className="block text-xs text-neutral-500">
-          참여율
-          <input
-            placeholder="100% 개인 작업"
-            value={form.participation}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, participation: event.target.value }))
-            }
-            className={inputClass}
-          />
-        </label>
-        <label className="block text-xs text-neutral-500">
-          연도 / 기간
-          <input
-            placeholder="2025"
-            value={form.project_year}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, project_year: event.target.value }))
-            }
-            className={inputClass}
-          />
-        </label>
+        {isPackagingCategory(form.category) ? (
+          <>
+            <label className="block text-xs text-neutral-500">
+              PROJECT
+              <input
+                placeholder="glowiest Dream Glow Beauty Mask"
+                value={form.project_detail}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, project_detail: event.target.value }))
+                }
+                className={inputClass}
+              />
+            </label>
+            <label className="block text-xs text-neutral-500">
+              CATEGORY (제품 카테고리)
+              <input
+                placeholder="Beauty / Skincare"
+                value={form.category_detail}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, category_detail: event.target.value }))
+                }
+                className={inputClass}
+              />
+            </label>
+            <label className="block text-xs text-neutral-500">
+              CHANNEL
+              <textarea
+                rows={2}
+                placeholder="Costco Korea / US / Canada, Amazon, ..."
+                value={form.channel}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, channel: event.target.value }))
+                }
+                className={inputClass}
+              />
+            </label>
+            <label className="block text-xs text-neutral-500">
+              SCOPE
+              <input
+                placeholder="5 SKU"
+                value={form.scope}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, scope: event.target.value }))
+                }
+                className={inputClass}
+              />
+            </label>
+            <label className="block text-xs text-neutral-500">
+              ROLE
+              <textarea
+                rows={2}
+                placeholder="Package Design · Artwork · Production, 기여도 100%"
+                value={form.role}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, role: event.target.value }))
+                }
+                className={inputClass}
+              />
+            </label>
+          </>
+        ) : (
+          <>
+            <label className="block text-xs text-neutral-500">
+              참여율
+              <input
+                placeholder="100% 개인 작업"
+                value={form.participation}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, participation: event.target.value }))
+                }
+                className={inputClass}
+              />
+            </label>
+            <label className="block text-xs text-neutral-500">
+              연도 / 기간
+              <input
+                placeholder="2025"
+                value={form.project_year}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, project_year: event.target.value }))
+                }
+                className={inputClass}
+              />
+            </label>
+          </>
+        )}
         <label className="block text-xs text-neutral-500">
           표시 순서
           <input
