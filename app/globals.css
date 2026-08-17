@@ -77,3 +77,65 @@ body {
   height: 100%;
   object-fit: cover;
 }
+
+.packaging-images {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: start;
+  gap: 28px;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .packaging-images {
+    grid-template-columns: 1fr 1fr;
+    padding: 28px;
+  }
+}
+
+.packaging-card {
+  margin: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s ease-out,
+    transform 0.7s ease-out;
+}
+
+.packaging-card.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.packaging-card--hero,
+.packaging-card--wide {
+  grid-column: 1 / -1;
+}
+
+.packaging-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.packaging-card--square img {
+  aspect-ratio: 1 / 1;
+  height: 100%;
+  object-fit: cover;
+}
+
+.packaging-card--portrait img {
+  aspect-ratio: 3 / 4;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .packaging-card {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
