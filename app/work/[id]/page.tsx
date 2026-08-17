@@ -42,52 +42,46 @@ export default async function WorkPage({
         <aside className="box-border h-auto min-w-0 w-full self-start bg-background px-6 py-8 min-[1200px]:sticky min-[1200px]:top-0 min-[1200px]:pl-8 min-[1200px]:pr-0 min-[1200px]:py-8">
           <Link
             href="/#work"
-            className="text-sm text-neutral-400 transition-colors hover:text-foreground"
+            className="text-base text-neutral-400 transition-colors hover:text-foreground"
           >
             ← 목록으로
           </Link>
-          <p className="mt-6 max-w-full break-words text-xs tracking-[0.18em] text-neutral-400">
+          <p className="mt-5 max-w-full break-words text-sm tracking-[0.18em] text-neutral-400">
             Design for {brandLabel}
           </p>
-          <h1 className="mt-4 max-w-full break-words text-3xl font-medium leading-tight tracking-tight md:text-4xl min-[1200px]:text-[2.4rem]">
+          <h1 className="mt-3 max-w-full break-words text-5xl font-medium leading-[1.12] tracking-tight md:text-6xl min-[1200px]:text-[3.6rem]">
             {project.title}
           </h1>
           {project.description ? (
-            <p className="mt-6 max-w-full break-words whitespace-pre-line text-sm leading-7 text-neutral-500">
+            <p className="mt-5 max-w-full break-words whitespace-pre-line text-base leading-8 text-neutral-500 md:text-lg md:leading-9">
               {project.description}
             </p>
           ) : null}
           {hasParticipation || hasYear ? (
-            <div className="mt-8 space-y-6">
-              <p className="text-xs tracking-[0.18em] text-neutral-400">
+            <div className="mt-7 space-y-5">
+              <p className="text-sm tracking-[0.18em] text-neutral-400">
                 Participation & Timeline
               </p>
               {hasParticipation ? (
                 <div>
-                  <p className="text-[11px] tracking-[0.16em] uppercase text-neutral-400">
+                  <p className="text-xs tracking-[0.16em] uppercase text-neutral-400">
                     Participation
                   </p>
-                  <p className="mt-1.5 break-words text-sm text-neutral-600">
+                  <p className="mt-1.5 break-words text-base text-neutral-600">
                     {project.participation}
                   </p>
                 </div>
               ) : null}
               {hasYear ? (
                 <div>
-                  <p className="text-[11px] tracking-[0.16em] uppercase text-neutral-400">
+                  <p className="text-xs tracking-[0.16em] uppercase text-neutral-400">
                     Timeline / Year
                   </p>
-                  <p className="mt-1.5 break-words text-sm text-neutral-600">
+                  <p className="mt-1.5 break-words text-base text-neutral-600">
                     {project.project_year}
                   </p>
                 </div>
               ) : null}
-            </div>
-          ) : null}
-          {project.thumbnail_url ? (
-            <div className="work-thumb mt-8">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={project.thumbnail_url} alt={project.title} />
             </div>
           ) : null}
         </aside>
