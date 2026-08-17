@@ -2,15 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CATEGORY_LABELS, type Project, type ProjectCategory } from "@/lib/types";
 
-const filters: Array<"all" | ProjectCategory> = [
-  "all",
-  "packaging",
-  "web",
-  "detail_page",
-];
+type FilterKey = "all" | ProjectCategory;
+
+const FILTERS: FilterKey[] = ["all", "packaging", "web", "detail_page"];
+const FADE_MS = 300;
 
 const spans = [
   "md:col-span-8 md:row-span-2 min-h-[380px] md:min-h-[520px]",
@@ -23,12 +21,29 @@ const spans = [
 ];
 
 export function WorkGallery({ projects }: { projects: Project[] }) {
-  const [filter, setFilter] = useState<"all" | ProjectCategory>("all");
+  const [filter, setFilter] = useState<FilterKey>("all");
+  const [visibleFilter, setVisibleFilter] = useState<FilterKey>("all");
+  const [fading, setFading] = useState(false);
 
   const visible = useMemo(() => {
-    if (filter === "all") return projects;
-    return projects.filter((project) => project.category === filter);
-  }, [filter, projects]);
+    if (visibleFilter === "all") return projects;
+    return projects.filter((project) => project.category === visibleFilter);
+  }, [visibleFilter, projects]);
+
+  useEffect(() => {
+    if (filter === visibleFilter) return undefined;
+    setFading(true);
+    const swap = window.setTimeout(() => {
+      setVisibleFilter(filter);
+    }, FADE_MS);
+    return () => window.clearTimeout(swap);
+  }, [filter, visibleFilter]);
+
+  useEffect(() => {
+    if (!fading || filter !== visibleFilter) return undefined;
+    const frame = window.requestAnimationFrame(() => setFading(false));
+    return () => window.cancelAnimationFrame(frame);
+  }, [fading, filter, visibleFilter]);
 
   return (
     <section id="work" className="scroll-mt-20 border-b border-line">
@@ -42,48 +57,68 @@ export function WorkGallery({ projects }: { projects: Project[] }) {
               Selected Projects
             </h2>
           </div>
-          <div className="flex flex-wrap gap-1">
-            {filters.map((key) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setFilter(key)}
-                className={`border-b px-3 py-1.5 text-sm transition-colors ${
-                  filter === key
-                    ? "border-foreground text-foreground"
-                    : "border-transparent text-neutral-400 hover:text-foreground"
-                }`}
-              >
-                {CATEGORY_LABELS[key]}
-              </button>
-            ))}
+          <div className="-mx-6 overflow-x-auto px-6 md:mx-0 md:overflow-visible md:px-0">
+            <div
+              className="flex w-max flex-nowrap gap-1 md:w-auto md:flex-wrap"
+              role="tablist"
+              aria-label="프로젝트 카테고리"
+            >
+              {FILTERS.map((key) => {
+                const selected = filter === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    role="tab"
+                    aria-selected={selected}
+                    onClick={() => setFilter(key)}
+                    className={`shrink-0 border-b px-3 py-1.5 text-sm whitespace-nowrap transition-colors ${
+                      selected
+                        ? "border-foreground font-medium text-foreground"
+                        : "border-transparent font-normal text-neutral-400 hover:text-foreground"
+                    }`}
+                  >
+                    {CATEGORY_LABELS[key]}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
         {visible.length === 0 ? (
-          <p className="mt-16 text-sm text-neutral-400">
+          <p
+            className={`mt-16 text-sm text-neutral-400 transition-opacity duration-300 ease-out ${
+              fading ? "opacity-0" : "opacity-100"
+            }`}
+          >
             아직 등록된 프로젝트가 없습니다.
           </p>
         ) : (
-          <div className="mt-12 grid grid-cols-1 gap-3 md:grid-cols-12">
+          <div
+            className={`mt-12 grid grid-cols-1 gap-3 md:grid-cols-12 ${
+              fading ? "opacity-0" : "opacity-100"
+            }`}
+            style={{ transition: "opacity 0.3s ease-out" }}
+          >
             {visible.map((project, index) => (
               <Link
                 key={project.id}
                 href={`/work/${project.id}`}
-                className={`group relative col-span-1 overflow-hidden bg-neutral-100 ${spans[index % spans.length]}`}
+                className={`group relative col-span-1 block min-h-[240px] overflow-hidden bg-neutral-100 shadow-none transition-[transform,box-shadow] duration-200 ease-out hover:z-10 hover:scale-[1.02] hover:shadow-[0_16px_40px_rgba(0,0,0,0.14)] ${spans[index % spans.length]}`}
               >
                 {project.thumbnail_url ? (
                   <Image
                     src={project.thumbnail_url}
                     alt={project.title}
                     fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                    className="object-cover"
                     sizes="(max-width: 768px) 100vw, 66vw"
                   />
                 ) : (
                   <div className="absolute inset-0 bg-neutral-200" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/0 to-transparent opacity-80 transition-opacity group-hover:opacity-100" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/0 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-5 text-white">
                   <p className="text-[11px] tracking-[0.18em] uppercase opacity-80">
                     {CATEGORY_LABELS[project.category]}
