@@ -30,6 +30,14 @@ function loadImageSize(src: string): Promise<SizedImage> {
   });
 }
 
+function sequentialColumns(images: string[]) {
+  const columns: string[][] = Array.from({ length: COLUMN_COUNT }, () => []);
+  images.forEach((src, index) => {
+    columns[index].push(src);
+  });
+  return columns;
+}
+
 function distributeToShortestColumns(
   images: SizedImage[],
   columnWidth: number,
@@ -79,9 +87,16 @@ export function DetailPageLayout({
     return () => observer.disconnect();
   }, []);
 
+  const useMasonry = images.length > COLUMN_COUNT;
   const imagesKey = images.join("\0");
 
   useEffect(() => {
+    if (!useMasonry) {
+      setReady(true);
+      setSized([]);
+      return;
+    }
+
     let cancelled = false;
     setReady(false);
     setSized([]);
@@ -97,23 +112,43 @@ export function DetailPageLayout({
     return () => {
       cancelled = true;
     };
-  }, [imagesKey]);
+  }, [imagesKey, useMasonry]);
 
   const innerWidth = Math.max(0, containerWidth - PADDING_X);
   const columnWidth = Math.max(
     1,
     (innerWidth - COLUMN_GAP * (COLUMN_COUNT - 1)) / COLUMN_COUNT,
   );
-  const columns = useMemo(() => {
-    if (!ready || !sized.length || !containerWidth) {
+  const masonryColumns = useMemo(() => {
+    if (!useMasonry || !ready || !sized.length || !containerWidth) {
       return Array.from({ length: COLUMN_COUNT }, () => [] as SizedImage[]);
     }
     return distributeToShortestColumns(sized, columnWidth);
-  }, [ready, sized, containerWidth, columnWidth]);
+  }, [useMasonry, ready, sized, containerWidth, columnWidth]);
 
   if (images.length === 0) {
     return (
       <p className="px-6 py-24 text-sm text-neutral-400">이미지가 없습니다.</p>
+    );
+  }
+
+  if (!useMasonry) {
+    return (
+      <div className="detail-page-columns">
+        {sequentialColumns(images).map((columnImages, columnIndex) => (
+          <div key={columnIndex} className="detail-page-column">
+            {columnImages.map((src, imageIndex) => (
+              <img
+                key={`${src}-${imageIndex}`}
+                src={src}
+                alt={alt}
+                loading={columnIndex === 0 && imageIndex === 0 ? "eager" : "lazy"}
+                decoding="async"
+              />
+            ))}
+          </div>
+        ))}
+      </div>
     );
   }
 
@@ -126,7 +161,7 @@ export function DetailPageLayout({
           ))}
         </>
       ) : (
-        columns.map((columnImages, columnIndex) => (
+        masonryColumns.map((columnImages, columnIndex) => (
           <div key={columnIndex} className="detail-page-column">
             {columnImages.map((image, imageIndex) => (
               <img
