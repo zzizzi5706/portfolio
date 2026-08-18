@@ -139,27 +139,28 @@ body {
   z-index: 2;
 }
 
-.detail-page-split {
+.detail-page-columns {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 18px;
   width: 100%;
   box-sizing: border-box;
   padding: 16px 20px;
   align-items: start;
 }
 
-.detail-page-split-card {
-  margin: 0;
+.detail-page-column {
   min-width: 0;
-  overflow: hidden;
-  background: #f3f3f3;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.detail-page-split-card img {
+.detail-page-column img {
   display: block;
   width: 100%;
   height: auto;
+  object-fit: initial;
 }
 
 .web-design-images {

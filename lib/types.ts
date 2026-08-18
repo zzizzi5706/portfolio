@@ -49,6 +49,10 @@ export const CATEGORY_LABELS: Record<ProjectCategory | "all", string> = {
   detail_page: "패키징",
 };
 
+export function isDetailPageCategory(category: ProjectCategory) {
+  return CATEGORY_LABELS[category] === "상세페이지";
+}
+
 export function isPackagingCategory(category: ProjectCategory) {
   return CATEGORY_LABELS[category] === "패키징";
 }
