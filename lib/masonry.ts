@@ -4,7 +4,7 @@ export function masonryColumnCount(imageCount: number) {
 }
 
 export function detailPageColumnCount(imageCount: number) {
-  return imageCount >= 10 ? 4 : 3;
+  return imageCount >= 13 ? 4 : 3;
 }
 
 export function splitImagesRoundRobin<T>(images: T[], columnCount: number) {

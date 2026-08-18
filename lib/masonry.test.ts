@@ -12,8 +12,9 @@ assert(masonryColumnCount(15) === 5, "15 images use 5 columns");
 
 assert(detailPageColumnCount(1) === 3, "1 image uses 3 columns");
 assert(detailPageColumnCount(9) === 3, "9 images use 3 columns");
-assert(detailPageColumnCount(10) === 4, "10 images use 4 columns");
-assert(detailPageColumnCount(15) === 4, "15 images use 4 columns");
+assert(detailPageColumnCount(10) === 3, "10 images still use 3 columns");
+assert(detailPageColumnCount(12) === 3, "12 images use 3 columns");
+assert(detailPageColumnCount(13) === 4, "13 images use 4 columns");
 
 const eight = splitImagesRoundRobin(["0", "1", "2", "3", "4", "5", "6", "7"], 3);
 assert(eight[0].join() === "0,3,6", "8 images fill left column first");

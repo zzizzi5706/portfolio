@@ -1,8 +1,8 @@
 import {
   SLICE_CONFIG,
   findGaps,
-  gapsToContentRanges,
-  selectCutGaps,
+  groupShortSlices,
+  sliceContentRanges,
   trimBlankEdges,
 } from "@/lib/image-slice";
 
@@ -52,36 +52,50 @@ export async function sliceLongImage(file: File) {
   analysisCtx.drawImage(image, 0, 0, analysisWidth, analysisHeight);
   const { data } = analysisCtx.getImageData(0, 0, analysisWidth, analysisHeight);
 
-  const analysisGaps = findGaps(data, analysisWidth, analysisHeight);
-  const cutGaps = selectCutGaps(analysisHeight, analysisGaps);
-  const analysisRanges = gapsToContentRanges(analysisHeight, cutGaps)
+  const analysisGaps = findGaps(data, analysisWidth, analysisHeight, {
+    ...SLICE_CONFIG,
+    MIN_GAP_HEIGHT: Math.max(8, Math.round(SLICE_CONFIG.MIN_GAP_HEIGHT * scale)),
+  });
+  const analysisRanges = sliceContentRanges(analysisHeight, analysisGaps, {
+    ...SLICE_CONFIG,
+    MAX_SLICE_HEIGHT: Math.max(1, Math.round(SLICE_CONFIG.MAX_SLICE_HEIGHT * scale)),
+    FALLBACK_SLICE_HEIGHT: Math.max(1, Math.round(SLICE_CONFIG.FALLBACK_SLICE_HEIGHT * scale)),
+  })
     .map((range) => trimBlankEdges(data, analysisWidth, analysisHeight, range))
     .filter((range): range is NonNullable<typeof range> => range !== null);
-  const ranges = analysisRanges.map((range) => ({
-    start: Math.round(range.start / scale),
-    end: Math.round(range.end / scale),
-  }));
+  const groups = groupShortSlices(
+    analysisRanges.map((range) => ({
+      start: Math.round(range.start / scale),
+      end: Math.round(range.end / scale),
+    })),
+    SLICE_CONFIG.MIN_SLICE_HEIGHT,
+  );
 
   const files: File[] = [];
-  for (const [index, range] of ranges.entries()) {
-    const height = range.end - range.start;
+  for (const [index, group] of groups.entries()) {
+    const height = group.reduce((sum, range) => sum + (range.end - range.start), 0);
     if (height < 1) continue;
     const slice = document.createElement("canvas");
     slice.width = image.width;
     slice.height = height;
     const ctx = slice.getContext("2d");
     if (!ctx) throw new Error("캔버스를 사용할 수 없습니다.");
-    ctx.drawImage(
-      image,
-      0,
-      range.start,
-      image.width,
-      height,
-      0,
-      0,
-      image.width,
-      height,
-    );
+    let y = 0;
+    for (const range of group) {
+      const piece = range.end - range.start;
+      ctx.drawImage(
+        image,
+        0,
+        range.start,
+        image.width,
+        piece,
+        0,
+        y,
+        image.width,
+        piece,
+      );
+      y += piece;
+    }
     files.push(
       await canvasToFile(slice, `${file.name.replace(/\.[^.]+$/, "")}-${index + 1}.jpg`),
     );

@@ -2,7 +2,9 @@ import {
   findGapCenters,
   findGaps,
   gapsToContentRanges,
+  groupShortSlices,
   selectCutYs,
+  sliceContentRanges,
   SLICE_CONFIG,
   trimBlankEdges,
 } from "./image-slice";
@@ -95,6 +97,42 @@ const trimmed = trimBlankEdges(padded.data, padded.width, padded.height, {
 });
 if (!trimmed || trimmed.start !== 20 || trimmed.end !== 100) {
   throw new Error(`trimBlankEdges failed: ${JSON.stringify(trimmed)}`);
+}
+
+const noisy = makeRows([
+  { blank: false, count: 2 },
+  { blank: true, count: 40 },
+  { blank: false, count: 80 },
+]);
+const noisyTrim = trimBlankEdges(noisy.data, noisy.width, noisy.height, {
+  start: 0,
+  end: noisy.height,
+});
+if (!noisyTrim || noisyTrim.start !== 42) {
+  throw new Error(`should skip thin leading content, got ${JSON.stringify(noisyTrim)}`);
+}
+
+const shortSections = makeRows([
+  { blank: false, count: 180 },
+  { blank: true, count: 40 },
+  { blank: false, count: 220 },
+  { blank: true, count: 50 },
+  { blank: false, count: 160 },
+]);
+const allGapRanges = sliceContentRanges(
+  shortSections.height,
+  findGaps(shortSections.data, shortSections.width, shortSections.height),
+);
+if (allGapRanges.length !== 3) {
+  throw new Error(`expected a slice per section, got ${allGapRanges.length}`);
+}
+if (allGapRanges[0].end !== 180 || allGapRanges[1].start !== 220) {
+  throw new Error(`all-gap slices should exclude whitespace: ${JSON.stringify(allGapRanges)}`);
+}
+
+const grouped = groupShortSlices(allGapRanges, 400);
+if (grouped.length !== 1 || grouped[0].length !== 3) {
+  throw new Error(`short slices should merge into previous: ${JSON.stringify(grouped)}`);
 }
 
 console.log("image-slice gap trim ok");

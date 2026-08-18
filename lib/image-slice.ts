@@ -52,6 +52,33 @@ export function isBlankRow(
   return samples > 0 && maxLuma - minLuma <= config.VARIANCE_THRESHOLD;
 }
 
+export function isMostlyBlankRow(
+  data: Uint8ClampedArray,
+  width: number,
+  y: number,
+  config = SLICE_CONFIG,
+) {
+  let blank = 0;
+  let samples = 0;
+
+  for (let x = 0; x < width; x += config.SAMPLE_STEP) {
+    const i = (y * width + x) * 4;
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+    samples += 1;
+    if (
+      r >= config.WHITE_THRESHOLD &&
+      g >= config.WHITE_THRESHOLD &&
+      b >= config.WHITE_THRESHOLD
+    ) {
+      blank += 1;
+    }
+  }
+
+  return samples > 0 && blank / samples >= 0.97;
+}
+
 export function findGaps(
   data: Uint8ClampedArray,
   width: number,
@@ -62,7 +89,7 @@ export function findGaps(
   let gapStart = -1;
 
   for (let y = 0; y < height; y += 1) {
-    const blank = isBlankRow(data, width, y, config);
+    const blank = isMostlyBlankRow(data, width, y, config);
     if (blank && gapStart === -1) gapStart = y;
     if ((!blank || y === height - 1) && gapStart !== -1) {
       const gapEnd = blank && y === height - 1 ? y + 1 : y;
@@ -174,6 +201,47 @@ export function gapsToContentRanges(height: number, cutGaps: ImageGap[]) {
   return ranges;
 }
 
+export function splitOversizedRanges(
+  ranges: ImageRange[],
+  config = SLICE_CONFIG,
+) {
+  const out: ImageRange[] = [];
+  for (const range of ranges) {
+    let start = range.start;
+    while (range.end - start > config.MAX_SLICE_HEIGHT) {
+      const end = start + config.FALLBACK_SLICE_HEIGHT;
+      out.push({ start, end });
+      start = end;
+    }
+    if (range.end > start) out.push({ start, end: range.end });
+  }
+  return out;
+}
+
+export function sliceContentRanges(
+  height: number,
+  gaps: ImageGap[],
+  config = SLICE_CONFIG,
+) {
+  return splitOversizedRanges(gapsToContentRanges(height, gaps), config);
+}
+
+export function groupShortSlices(
+  ranges: ImageRange[],
+  minHeight = SLICE_CONFIG.MIN_SLICE_HEIGHT,
+) {
+  const groups: ImageRange[][] = [];
+  for (const range of ranges) {
+    const last = groups[groups.length - 1];
+    if (last && range.end - range.start < minHeight) {
+      last.push(range);
+      continue;
+    }
+    groups.push([range]);
+  }
+  return groups;
+}
+
 export function trimBlankEdges(
   data: Uint8ClampedArray,
   width: number,
@@ -181,11 +249,42 @@ export function trimBlankEdges(
   range: ImageRange,
   config = SLICE_CONFIG,
 ): ImageRange | null {
-  let start = Math.max(0, range.start);
-  let end = Math.min(height, range.end);
+  const from = Math.max(0, range.start);
+  const to = Math.min(height, range.end);
+  const minRun = 8;
+  const isContent = (y: number) => !isMostlyBlankRow(data, width, y, config);
 
-  while (start < end && isBlankRow(data, width, start, config)) start += 1;
-  while (end > start && isBlankRow(data, width, end - 1, config)) end -= 1;
+  let start = from;
+  let run = 0;
+  let mark = from;
+  for (let y = from; y < to; y += 1) {
+    if (isContent(y)) {
+      if (run === 0) mark = y;
+      run += 1;
+      if (run >= minRun) {
+        start = mark;
+        break;
+      }
+    } else {
+      run = 0;
+    }
+  }
+
+  let end = to;
+  run = 0;
+  mark = to;
+  for (let y = to - 1; y >= start; y -= 1) {
+    if (isContent(y)) {
+      if (run === 0) mark = y + 1;
+      run += 1;
+      if (run >= minRun) {
+        end = mark;
+        break;
+      }
+    } else {
+      run = 0;
+    }
+  }
 
   if (end - start < 1) return null;
   return { start, end };

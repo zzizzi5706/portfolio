@@ -23,19 +23,9 @@ export function DetailPageLayout({
   return (
     <ImageLightboxRoot images={images} alt={alt}>
       {(open) => (
-        <div
-          className="detail-page-columns"
-          style={{
-            gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
-            alignItems: "start",
-          }}
-        >
+        <div className="detail-page-columns">
           {columns.map((columnImages, columnIndex) => (
-            <div
-              key={columnIndex}
-              className="detail-page-column"
-              style={{ alignSelf: "start", margin: 0 }}
-            >
+            <div key={columnIndex} className="detail-page-column">
               {columnImages.map((src, imageIndex) => {
                 const originalIndex = imageIndex * columnCount + columnIndex;
                 return (
