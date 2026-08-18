@@ -1,4 +1,10 @@
-import { detailPageColumnCount, masonryColumnCount, splitImagesRoundRobin } from "./masonry";
+import {
+  detailPageColumnCount,
+  masonryColumnCount,
+  renderedImageHeight,
+  splitImagesByTargetHeight,
+  splitImagesRoundRobin,
+} from "./masonry";
 
 function assert(condition: boolean, message: string) {
   if (!condition) throw new Error(message);
@@ -38,5 +44,32 @@ assert(
   fifteen.every((column) => column.length === 3),
   "15 images split into 3 per column",
 );
+
+assert(renderedImageHeight(100, 200, 50) === 100, "scales height by column width");
+
+const sequential = splitImagesByTargetHeight(
+  [120, 80, 90, 70, 200, 40].map((height, index) => ({ item: index, height })),
+  3,
+);
+assert(sequential.flat().join() === "0,1,2,3,4,5", "keeps original image order");
+assert(sequential[0].join() === "0,1", "fills first column until the next image would exceed the target");
+assert(sequential[1].join() === "2,3", "fills the next column the same way");
+assert(sequential[2].join() === "4,5", "last column absorbs the remainder");
+
+const tallFirst = splitImagesByTargetHeight(
+  [300, 10, 10, 10].map((height, index) => ({ item: index, height })),
+  3,
+);
+assert(tallFirst[0].join() === "0", "keeps an oversized first image in the current column");
+assert(tallFirst[1].join() === "1,2,3", "later short images still fill up to the target");
+assert(tallFirst[2].join() === "", "last column can be empty if earlier columns already took the rest");
+
+const withGap = splitImagesByTargetHeight(
+  [100, 50, 50, 200].map((height, index) => ({ item: index, height })),
+  2,
+  10,
+);
+assert(withGap[0].join() === "0,1", "counts the in-column gap when testing the target");
+assert(withGap[1].join() === "2,3", "remaining images go to the last column");
 
 console.log("masonry tests passed");
