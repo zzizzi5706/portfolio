@@ -3,6 +3,10 @@ export function masonryColumnCount(imageCount: number) {
   return Math.min(5, Math.max(2, Math.ceil(imageCount / 3)));
 }
 
+export function detailPageColumnCount(imageCount: number) {
+  return imageCount >= 10 ? 4 : 3;
+}
+
 export function splitImagesRoundRobin<T>(images: T[], columnCount: number) {
   const columns = Array.from({ length: columnCount }, () => [] as T[]);
   images.forEach((image, index) => {

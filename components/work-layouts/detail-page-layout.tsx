@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import { detailPageColumnCount, splitImagesRoundRobin } from "@/lib/masonry";
 
 export function DetailPageLayout({
   images,
@@ -13,13 +14,14 @@ export function DetailPageLayout({
     );
   }
 
-  const columns: string[][] = [[], [], []];
-  images.forEach((src, index) => {
-    columns[index % 3].push(src);
-  });
+  const columnCount = detailPageColumnCount(images.length);
+  const columns = splitImagesRoundRobin(images, columnCount);
 
   return (
-    <div className="detail-page-columns">
+    <div
+      className="detail-page-columns"
+      style={{ gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))` }}
+    >
       {columns.map((columnImages, columnIndex) => (
         <div key={columnIndex} className="detail-page-column">
           {columnImages.map((src, imageIndex) => (

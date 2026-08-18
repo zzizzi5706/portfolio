@@ -141,7 +141,6 @@ body {
 
 .detail-page-columns {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
   column-gap: 18px;
   width: 100%;
   box-sizing: border-box;
