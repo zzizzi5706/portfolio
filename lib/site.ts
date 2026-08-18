@@ -3,8 +3,6 @@ export const site = {
   nameEn: "Yeon Ji Han",
   title: "패키징 · 웹 · 상세페이지 디자이너",
   intro: "화장품 브랜드의 첫인상부터 마지막 클릭까지 디자인합니다.",
-  email: "hello@example.com",
-  phone: "010-0000-0000",
   instagram: "https://instagram.com/",
   instagramHandle: "@studio",
   heroImage: "/hero.jpg",
