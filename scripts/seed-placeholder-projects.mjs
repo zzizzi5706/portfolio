@@ -4,23 +4,37 @@ import { createClient } from "@supabase/supabase-js";
 
 const YEAR = String(new Date().getFullYear());
 const BUCKET = "portfolio-images";
-const IMAGE_COUNT = 5;
+const TARGET_PER_CATEGORY = 5;
 
 const CATEGORIES = [
   {
     key: "packaging",
     label: "상세페이지",
-    queries: ["product landing page", "ecommerce banner design"],
+    queries: [
+      "product landing page",
+      "ecommerce banner design",
+      "product detail page design",
+    ],
   },
   {
     key: "web",
     label: "웹디자인",
-    queries: ["website design mockup", "ui design screen"],
+    queries: [
+      "website design mockup",
+      "ui design screen",
+      "landing page design",
+      "app interface design",
+    ],
   },
   {
     key: "detail_page",
     label: "패키징",
-    queries: ["cosmetic packaging", "product bottle design"],
+    queries: [
+      "cosmetic packaging",
+      "perfume bottle",
+      "skincare product box",
+      "beauty product design",
+    ],
   },
 ];
 
@@ -48,10 +62,34 @@ function supabaseUrl() {
     .replace(/\/$/, "");
 }
 
-async function searchPexels(apiKey, query, perPage) {
+function imageCountFor(index) {
+  return 4 + (index % 3);
+}
+
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function nextSampleNumber(titles, label) {
+  let max = 0;
+  if (titles.has(`${label} 샘플 프로젝트 (임시)`)) max = 1;
+  const pattern = new RegExp(`^${escapeRegex(label)} 샘플 프로젝트 (\\d+) \\(임시\\)$`);
+  for (const title of titles) {
+    const match = title.match(pattern);
+    if (match) max = Math.max(max, Number(match[1]));
+  }
+  return max + 1;
+}
+
+function sampleTitle(label, number) {
+  return `${label} 샘플 프로젝트 ${number} (임시)`;
+}
+
+async function searchPexels(apiKey, query, perPage, page) {
   const url = new URL("https://api.pexels.com/v1/search");
   url.searchParams.set("query", query);
   url.searchParams.set("per_page", String(perPage));
+  url.searchParams.set("page", String(page));
 
   const response = await fetch(url, {
     headers: { Authorization: apiKey },
@@ -64,27 +102,85 @@ async function searchPexels(apiKey, query, perPage) {
   return (data.photos ?? []).flatMap((photo) => {
     const src = photo.src?.large2x || photo.src?.large || photo.src?.original;
     if (!src) return [];
-    return [{ id: photo.id, src, alt: photo.alt ?? query }];
+    return [{ id: `pexels-${photo.id}`, src, alt: photo.alt ?? query }];
   });
 }
 
-async function collectPhotos(apiKey, queries, needed) {
-  const found = [];
-  const seen = new Set();
+async function searchUnsplash(apiKey, query, perPage, page) {
+  const url = new URL("https://api.unsplash.com/search/photos");
+  url.searchParams.set("query", query);
+  url.searchParams.set("per_page", String(perPage));
+  url.searchParams.set("page", String(page));
 
-  for (const query of queries) {
-    if (found.length >= needed) break;
-    const photos = await searchPexels(apiKey, query, 8);
-    for (const photo of photos) {
-      if (seen.has(photo.id)) continue;
-      seen.add(photo.id);
-      found.push(photo);
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Client-ID ${apiKey}`,
+      "Accept-Version": "v1",
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`Unsplash search failed (${response.status}): ${await response.text()}`);
+  }
+
+  const data = await response.json();
+  return (data.results ?? []).flatMap((photo) => {
+    const src = photo.urls?.regular || photo.urls?.full || photo.urls?.small;
+    if (!src) return [];
+    return [
+      {
+        id: `unsplash-${photo.id}`,
+        src,
+        alt: photo.alt_description ?? query,
+      },
+    ];
+  });
+}
+
+function createPhotoSearchers() {
+  const pexelsKey = process.env.PEXELS_API_KEY;
+  const unsplashKey = process.env.UNSPLASH_ACCESS_KEY;
+  const searchers = [];
+
+  if (pexelsKey) {
+    searchers.push({
+      name: "Pexels",
+      search: (query, perPage, page) => searchPexels(pexelsKey, query, perPage, page),
+    });
+  }
+  if (unsplashKey) {
+    searchers.push({
+      name: "Unsplash",
+      search: (query, perPage, page) => searchUnsplash(unsplashKey, query, perPage, page),
+    });
+  }
+  if (searchers.length === 0) {
+    throw new Error("Neither PEXELS_API_KEY nor UNSPLASH_ACCESS_KEY is set");
+  }
+  return searchers;
+}
+
+async function collectPhotos(searchers, queries, needed, seen, startPage) {
+  const found = [];
+
+  for (const searcher of searchers) {
+    for (let page = startPage; page < startPage + 3; page += 1) {
+      for (const query of queries) {
+        if (found.length >= needed) break;
+        const photos = await searcher.search(query, 10, page);
+        for (const photo of photos) {
+          if (seen.has(photo.id)) continue;
+          seen.add(photo.id);
+          found.push(photo);
+          if (found.length >= needed) break;
+        }
+      }
       if (found.length >= needed) break;
     }
+    if (found.length >= needed) break;
   }
 
   if (found.length < 4) {
-    throw new Error(`Not enough Pexels photos for ${queries.join(", ")} (got ${found.length})`);
+    throw new Error(`Not enough photos for ${queries.join(", ")} (got ${found.length})`);
   }
   return found.slice(0, needed);
 }
@@ -172,22 +268,37 @@ async function nextDisplayOrder(supabase) {
   return (data?.display_order ?? 0) + 1;
 }
 
-async function seedCategory(supabase, pexelsKey, category, displayOrder) {
-  const title = `${category.label} 샘플 프로젝트 (임시)`;
-  const { data: existing, error: existingError } = await supabase
+async function existingPlaceholderTitles(supabase, categoryKey) {
+  const { data, error } = await supabase
     .from("projects")
     .select("id, title, category")
-    .eq("title", title)
-    .maybeSingle();
-  if (existingError) {
-    throw new Error(`Failed to check existing project: ${existingError.message}`);
-  }
-  if (existing) {
-    console.log(`Skip existing: ${title} (${existing.category})`);
-    return { title: existing.title, category: existing.category, skipped: true };
-  }
+    .eq("category", categoryKey);
+  if (error) throw new Error(`Failed to list ${categoryKey} projects: ${error.message}`);
 
-  const photos = await collectPhotos(pexelsKey, category.queries, IMAGE_COUNT);
+  const titles = new Set(
+    (data ?? [])
+      .map((project) => project.title ?? "")
+      .filter((title) => title.includes("(임시)")),
+  );
+  return {
+    total: data?.length ?? 0,
+    placeholderCount: titles.size,
+    titles,
+  };
+}
+
+async function createPlaceholder(supabase, searchers, seen, category, title, displayOrder, imageCount, queryOffset) {
+  const rotatedQueries = [
+    ...category.queries.slice(queryOffset % category.queries.length),
+    ...category.queries.slice(0, queryOffset % category.queries.length),
+  ];
+  const photos = await collectPhotos(
+    searchers,
+    rotatedQueries,
+    imageCount,
+    seen,
+    1 + queryOffset,
+  );
   const urls = [];
   for (const [index, photo] of photos.entries()) {
     const file = await downloadImage(photo.src);
@@ -197,7 +308,7 @@ async function seedCategory(supabase, pexelsKey, category, displayOrder) {
       file,
     );
     urls.push(url);
-    console.log(`  uploaded ${index + 1}/${photos.length} for ${category.label}`);
+    console.log(`  uploaded ${index + 1}/${photos.length} for ${title}`);
   }
 
   const payload = {
@@ -214,35 +325,66 @@ async function seedCategory(supabase, pexelsKey, category, displayOrder) {
 
   const { error } = await supabase.from("projects").insert(payload);
   if (error) throw new Error(`Insert failed for ${title}: ${error.message}`);
-
   console.log(`Created: ${title} [${category.key}]`);
-  return { title, category: category.key, skipped: false };
 }
 
 async function main() {
   loadEnvLocal();
-
-  const pexelsKey = process.env.PEXELS_API_KEY;
-  const unsplashKey = process.env.UNSPLASH_ACCESS_KEY;
-  if (!pexelsKey && !unsplashKey) {
-    throw new Error("Neither PEXELS_API_KEY nor UNSPLASH_ACCESS_KEY is set");
-  }
-  if (!pexelsKey) {
-    throw new Error("Pexels is the available API in this env; PEXELS_API_KEY is missing");
-  }
-
+  const searchers = createPhotoSearchers();
   const supabase = await createAuthedClient();
   let displayOrder = await nextDisplayOrder(supabase);
-  const created = [];
+  const seen = new Set();
+  const summary = [];
 
   for (const category of CATEGORIES) {
-    const result = await seedCategory(supabase, pexelsKey, category, displayOrder);
-    created.push(result);
-    if (!result.skipped) displayOrder += 1;
+    const existing = await existingPlaceholderTitles(supabase, category.key);
+    const missing = Math.max(0, TARGET_PER_CATEGORY - existing.placeholderCount);
+    console.log(
+      `\n${category.label} [${category.key}]: ${existing.placeholderCount} placeholder(s), need ${missing} more`,
+    );
+
+    let created = 0;
+    let sampleNumber = nextSampleNumber(existing.titles, category.label);
+    for (let i = 0; i < missing; i += 1) {
+      while (existing.titles.has(sampleTitle(category.label, sampleNumber))) {
+        sampleNumber += 1;
+      }
+      const title = sampleTitle(category.label, sampleNumber);
+      existing.titles.add(title);
+      await createPlaceholder(
+        supabase,
+        searchers,
+        seen,
+        category,
+        title,
+        displayOrder,
+        imageCountFor(sampleNumber),
+        sampleNumber,
+      );
+      displayOrder += 1;
+      sampleNumber += 1;
+      created += 1;
+    }
+
+    summary.push({
+      label: category.label,
+      key: category.key,
+      created,
+      placeholders: existing.placeholderCount + created,
+    });
   }
 
   console.log("\nDone.");
-  console.log(JSON.stringify({ imageApi: "Pexels", projects: created }, null, 2));
+  console.log(
+    JSON.stringify(
+      {
+        imageApis: searchers.map((searcher) => searcher.name),
+        categories: summary,
+      },
+      null,
+      2,
+    ),
+  );
 }
 
 main().catch((error) => {
