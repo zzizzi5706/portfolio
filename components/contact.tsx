@@ -1,4 +1,3 @@
-import { ContactForm } from "@/components/contact-form";
 import { site } from "@/lib/site";
 
 const items = [
@@ -25,7 +24,6 @@ export function Contact() {
             </li>
           ))}
         </ul>
-        <ContactForm />
       </div>
     </section>
   );
