@@ -1,13 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { WorkCategoryList } from "@/components/work-category-list";
 import { WorkProjectImages } from "@/components/work-layouts/work-project-images";
-import { getProject } from "@/lib/supabase/queries";
+import { getProject, getProjects } from "@/lib/supabase/queries";
 import {
   CATEGORY_LABELS,
   PACKAGING_META_FIELDS,
   isPackagingCategory,
 } from "@/lib/types";
+import {
+  categoryFromSlug,
+  isWorkCategorySlug,
+  labelFromSlug,
+} from "@/lib/work-categories";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +23,9 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
+  if (isWorkCategorySlug(id)) {
+    return { title: labelFromSlug(id) };
+  }
   const project = await getProject(id);
   if (!project) return { title: "Project" };
   return {
@@ -31,6 +40,20 @@ export default async function WorkPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const category = categoryFromSlug(id);
+  if (category && isWorkCategorySlug(id)) {
+    const projects = (await getProjects()).filter(
+      (project) => project.category === category,
+    );
+    return (
+      <WorkCategoryList
+        slug={id}
+        title={CATEGORY_LABELS[category]}
+        projects={projects}
+      />
+    );
+  }
+
   const project = await getProject(id);
 
   if (!project) notFound();
