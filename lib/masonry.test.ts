@@ -52,7 +52,7 @@ const sequential = splitImagesByTargetHeight(
   3,
 );
 assert(sequential.flat().join() === "0,1,2,3,4,5", "keeps original image order");
-assert(sequential[0].join() === "0,1", "fills first column until the next image would exceed the target");
+assert(sequential[0].join() === "0,1", "fills first column with the closer-to-target choice");
 assert(sequential[1].join() === "2,3", "fills the next column the same way");
 assert(sequential[2].join() === "4,5", "last column absorbs the remainder");
 
@@ -69,7 +69,15 @@ const withGap = splitImagesByTargetHeight(
   2,
   10,
 );
-assert(withGap[0].join() === "0,1", "counts the in-column gap when testing the target");
-assert(withGap[1].join() === "2,3", "remaining images go to the last column");
+assert(withGap[0].join() === "0,1,2", "keeps an overflowing image when it is closer to the target");
+assert(withGap[1].join() === "3", "remaining images go to the last column");
+
+const closerOver = splitImagesByTargetHeight(
+  [1100, 300, 800, 200].map((height, index) => ({ item: index, height })),
+  3,
+);
+assert(closerOver[0].join() === "0", "skips a 300px add when 1100 is closer to 800 than 1400");
+assert(closerOver[1].join() === "1,2", "second column keeps 300+800 because 1100 beats 300");
+assert(closerOver[2].join() === "3", "last column absorbs the remainder");
 
 console.log("masonry tests passed");

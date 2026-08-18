@@ -58,7 +58,12 @@ export function splitImagesByTargetHeight<T>(
     while (index < images.length) {
       const next = images[index];
       const nextHeight = accumulated + (placed > 0 ? gap : 0) + next.height;
-      if (placed > 0 && nextHeight > targetHeight) break;
+      if (
+        placed > 0 &&
+        Math.abs(nextHeight - targetHeight) > Math.abs(accumulated - targetHeight)
+      ) {
+        break;
+      }
       columns[column].push(next.item);
       accumulated = nextHeight;
       placed += 1;
