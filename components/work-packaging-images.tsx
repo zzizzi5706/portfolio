@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useRef } from "react";
+import { storedImageUrl } from "@/lib/project-images";
 import { useFadeInOnScroll } from "@/lib/use-fade-in-on-scroll";
 
 type CardVariant = "hero" | "square" | "portrait" | "wide";
@@ -21,10 +22,11 @@ export function WorkPackagingImages({
   images: string[];
   alt: string;
 }) {
+  const srcs = images.map(storedImageUrl);
   const rootRef = useRef<HTMLDivElement>(null);
   useFadeInOnScroll(rootRef, ".packaging-card", [images]);
 
-  if (images.length === 0) {
+  if (srcs.length === 0) {
     return (
       <p className="px-6 py-24 text-sm text-neutral-400">이미지가 없습니다.</p>
     );
@@ -32,7 +34,7 @@ export function WorkPackagingImages({
 
   return (
     <div ref={rootRef} className="packaging-images">
-      {images.map((src, index) => (
+      {srcs.map((src, index) => (
         <figure
           key={`${src}-${index}`}
           className={`packaging-card work-fade-card packaging-card--${packagingVariant(index)}`}

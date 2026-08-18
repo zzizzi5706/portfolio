@@ -20,7 +20,7 @@ export type Project = {
   category: ProjectCategory;
   description: string | null;
   thumbnail_url: string | null;
-  /** Plain image URLs, or JSON strings with `{ url, width, height }`. */
+  /** Plain URLs, JSON `{url,width,height}` strings, or objects with a `url` field. */
   images: string[] | null;
   display_order: number | null;
   brand: string | null;

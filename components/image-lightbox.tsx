@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import { storedImageUrl } from "@/lib/project-images";
 
 type ImageLightboxProps = {
   images: string[];
@@ -79,7 +80,7 @@ export function ImageLightbox({
 
   if (!mounted || !render) return null;
 
-  const src = images[activeIndex];
+  const src = storedImageUrl(images[activeIndex]);
   const showNav = images.length > 1;
 
   return createPortal(

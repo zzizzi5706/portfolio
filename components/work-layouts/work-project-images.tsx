@@ -2,6 +2,11 @@ import { isDetailPageCategory, isPackagingCategory, isWebDesignCategory, type Pr
 import { DetailPageLayout } from "@/components/work-layouts/detail-page-layout";
 import { PackagingLayout } from "@/components/work-layouts/packaging-layout";
 import { WebDesignLayout } from "@/components/work-layouts/web-design-layout";
+import {
+  projectImageList,
+  type ImageSize,
+  type StoredProjectImage,
+} from "@/lib/project-images";
 
 export function WorkProjectImages({
   category,
@@ -10,23 +15,29 @@ export function WorkProjectImages({
   alt,
 }: {
   category: ProjectCategory;
-  images: string[];
-  imageSizes?: ({ width: number; height: number } | null)[];
+  images: Array<string | StoredProjectImage> | null | undefined;
+  imageSizes?: (ImageSize | null)[];
   alt: string;
 }) {
+  const stored = projectImageList(images);
+  const urls = stored.map((image) => image.url);
+  const sizes = stored.map((image, index) =>
+    image.width && image.height
+      ? { width: image.width, height: image.height }
+      : imageSizes?.[index] ?? null,
+  );
+
   if (isDetailPageCategory(category)) {
-    return (
-      <DetailPageLayout images={images} imageSizes={imageSizes} alt={alt} />
-    );
+    return <DetailPageLayout images={urls} imageSizes={sizes} alt={alt} />;
   }
 
   if (isWebDesignCategory(category)) {
-    return <WebDesignLayout images={images} alt={alt} />;
+    return <WebDesignLayout images={urls} alt={alt} />;
   }
 
   if (isPackagingCategory(category)) {
-    return <PackagingLayout images={images} alt={alt} />;
+    return <PackagingLayout images={urls} alt={alt} />;
   }
 
-  return <WebDesignLayout images={images} alt={alt} />;
+  return <WebDesignLayout images={urls} alt={alt} />;
 }

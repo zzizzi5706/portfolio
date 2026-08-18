@@ -4,6 +4,7 @@
 import { useRef } from "react";
 import { ImageLightboxRoot } from "@/components/image-lightbox";
 import { splitImagesRoundRobin } from "@/lib/masonry";
+import { storedImageUrl } from "@/lib/project-images";
 import { useFadeInOnScroll } from "@/lib/use-fade-in-on-scroll";
 
 const COLUMN_COUNT = 2;
@@ -15,19 +16,20 @@ export function WebDesignLayout({
   images: string[];
   alt: string;
 }) {
+  const srcs = images.map(storedImageUrl);
   const rootRef = useRef<HTMLDivElement>(null);
   useFadeInOnScroll(rootRef, ".work-fade-card", [images]);
 
-  if (images.length === 0) {
+  if (srcs.length === 0) {
     return (
       <p className="px-6 py-24 text-sm text-neutral-400">이미지가 없습니다.</p>
     );
   }
 
-  const columns = splitImagesRoundRobin(images, COLUMN_COUNT);
+  const columns = splitImagesRoundRobin(srcs, COLUMN_COUNT);
 
   return (
-    <ImageLightboxRoot images={images} alt={alt}>
+    <ImageLightboxRoot images={srcs} alt={alt}>
       {(open) => (
         <div ref={rootRef} className="web-design-columns">
           {columns.map((columnImages, columnIndex) => (

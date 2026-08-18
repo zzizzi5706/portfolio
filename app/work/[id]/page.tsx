@@ -9,7 +9,6 @@ import {
   PACKAGING_META_FIELDS,
   isPackagingCategory,
 } from "@/lib/types";
-import { projectImageList } from "@/lib/project-images";
 import {
   categoryFromSlug,
   isWorkCategorySlug,
@@ -59,13 +58,6 @@ export default async function WorkPage({
 
   if (!project) notFound();
 
-  const storedImages = projectImageList(project.images);
-  const images = storedImages.map((image) => image.url);
-  const imageSizes = storedImages.map((image) =>
-    image.width && image.height
-      ? { width: image.width, height: image.height }
-      : null,
-  );
   const brandLabel = project.brand?.trim() || CATEGORY_LABELS[project.category];
   const packaging = isPackagingCategory(project.category);
   const packagingMeta = PACKAGING_META_FIELDS.map((field) => ({
@@ -142,8 +134,7 @@ export default async function WorkPage({
         <div className="image-columns-wrap min-w-0 w-full bg-neutral-50">
           <WorkProjectImages
             category={project.category}
-            images={images}
-            imageSizes={imageSizes}
+            images={project.images}
             alt={project.title}
           />
         </div>

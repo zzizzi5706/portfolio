@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { masonryColumnCount, splitImagesRoundRobin } from "@/lib/masonry";
+import { storedImageUrl } from "@/lib/project-images";
 
 export function WorkImageColumns({
   images,
@@ -8,14 +9,15 @@ export function WorkImageColumns({
   images: string[];
   alt: string;
 }) {
-  if (images.length === 0) {
+  const srcs = images.map(storedImageUrl);
+  if (srcs.length === 0) {
     return (
       <p className="px-6 py-24 text-sm text-neutral-400">이미지가 없습니다.</p>
     );
   }
 
-  const columnCount = masonryColumnCount(images.length);
-  const columns = splitImagesRoundRobin(images, columnCount);
+  const columnCount = masonryColumnCount(srcs.length);
+  const columns = splitImagesRoundRobin(srcs, columnCount);
 
   return (
     <div className="work-masonry" data-columns={columnCount}>

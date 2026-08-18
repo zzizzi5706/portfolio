@@ -46,6 +46,8 @@ export function serializeStoredImage(image: StoredProjectImage) {
   return image.url;
 }
 
+/** Resolve a gallery item to an image URL. Accepts a plain URL, a JSON string, or `{ url, width, height }`. */
+/** Resolve a gallery item to an image URL. Accepts a plain URL, a JSON string, or `{ url, width, height }`. */
 export function storedImageUrl(value: unknown) {
   return parseStoredImage(value).url;
 }
@@ -62,4 +64,8 @@ export function projectImageList(images: unknown[] | null | undefined) {
   return (images ?? [])
     .map((item) => parseStoredImage(item))
     .filter((item) => item.url);
+}
+
+export function projectImageUrls(images: unknown[] | null | undefined) {
+  return projectImageList(images).map((image) => image.url);
 }

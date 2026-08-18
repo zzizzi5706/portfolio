@@ -9,7 +9,7 @@ import {
   renderedImageHeight,
   splitImagesByTargetHeight,
 } from "@/lib/masonry";
-import type { ImageSize } from "@/lib/project-images";
+import { storedImageUrl, type ImageSize } from "@/lib/project-images";
 
 type ColumnImage = {
   src: string;
@@ -48,24 +48,25 @@ export function DetailPageLayout({
   alt: string;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
+  const srcs = useMemo(() => images.map(storedImageUrl), [images]);
   const [fallbackSizes, setFallbackSizes] = useState<(ImageSize | null)[] | null>(
     null,
   );
   const [columnWidth, setColumnWidth] = useState(0);
-  const columnCount = detailPageColumnCount(images.length);
+  const columnCount = detailPageColumnCount(srcs.length);
   const storedComplete =
-    images.length > 0 &&
-    (imageSizes?.length ?? 0) >= images.length &&
-    images.every((_, index) => Boolean(imageSizes?.[index]?.width && imageSizes?.[index]?.height));
+    srcs.length > 0 &&
+    (imageSizes?.length ?? 0) >= srcs.length &&
+    srcs.every((_, index) => Boolean(imageSizes?.[index]?.width && imageSizes?.[index]?.height));
 
   useEffect(() => {
-    if (storedComplete || images.length === 0) {
+    if (storedComplete || srcs.length === 0) {
       setFallbackSizes(null);
       return;
     }
     let cancelled = false;
     void Promise.all(
-      images.map(async (src, index) => {
+      srcs.map(async (src, index) => {
         const stored = imageSizes?.[index];
         if (stored?.width && stored.height) return stored;
         return loadImageSize(src);
@@ -76,7 +77,7 @@ export function DetailPageLayout({
     return () => {
       cancelled = true;
     };
-  }, [imageSizes, images, storedComplete]);
+  }, [imageSizes, srcs, storedComplete]);
 
   useLayoutEffect(() => {
     const el = wrapRef.current;
@@ -96,12 +97,12 @@ export function DetailPageLayout({
     : fallbackSizes;
 
   const columns = useMemo(() => {
-    if (!resolvedSizes || resolvedSizes.length !== images.length || columnWidth <= 0) {
+    if (!resolvedSizes || resolvedSizes.length !== srcs.length || columnWidth <= 0) {
       return Array.from({ length: columnCount }, () => [] as ColumnImage[]);
     }
 
     return splitImagesByTargetHeight(
-      images.map((src, originalIndex) => ({
+      srcs.map((src, originalIndex) => ({
         item: { src, originalIndex },
         height: renderedImageHeight(
           resolvedSizes[originalIndex].width,
@@ -112,16 +113,16 @@ export function DetailPageLayout({
       columnCount,
       DETAIL_PAGE_IMAGE_GAP,
     );
-  }, [columnCount, columnWidth, images, resolvedSizes]);
+  }, [columnCount, columnWidth, srcs, resolvedSizes]);
 
-  if (images.length === 0) {
+  if (srcs.length === 0) {
     return (
       <p className="px-6 py-24 text-sm text-neutral-400">이미지가 없습니다.</p>
     );
   }
 
   return (
-    <ImageLightboxRoot images={images} alt={alt}>
+    <ImageLightboxRoot images={srcs} alt={alt}>
       {(open) => (
         <div ref={wrapRef} className="detail-page-columns">
           {columns.map((columnImages, columnIndex) => (
