@@ -1,6 +1,8 @@
 import { ContactForm } from "@/components/contact-form";
 import { site } from "@/lib/site";
 
+const SHOW_CONTACT_FORM = false;
+
 const items = [
   { label: "Email", value: site.email, href: `mailto:${site.email}` },
   { label: "Phone", value: site.phone, href: `tel:${site.phone.replace(/-/g, "")}` },
@@ -38,7 +40,7 @@ export function Contact() {
             </li>
           ))}
         </ul>
-        <ContactForm />
+        {SHOW_CONTACT_FORM ? <ContactForm /> : null}
       </div>
     </section>
   );
