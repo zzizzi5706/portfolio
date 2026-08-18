@@ -33,11 +33,8 @@ export function ContactForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-16 grid max-w-xl gap-5 border-t border-line pt-16"
+      className="mt-12 grid max-w-xl gap-5 border-t border-line pt-10"
     >
-      <p className="text-xs tracking-[0.18em] uppercase text-neutral-400">
-        Send a message
-      </p>
       <label className="block text-xs text-neutral-500">
         이름
         <input
