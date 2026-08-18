@@ -156,6 +156,11 @@ body {
   gap: 4px;
 }
 
+.detail-page-column--pending {
+  min-height: 240px;
+  background: #f3f3f3;
+}
+
 .detail-page-column img {
   display: block;
   width: 100%;
