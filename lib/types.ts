@@ -57,6 +57,10 @@ export function isPackagingCategory(category: ProjectCategory) {
   return CATEGORY_LABELS[category] === "패키징";
 }
 
+export function isWebDesignCategory(category: ProjectCategory) {
+  return CATEGORY_LABELS[category] === "웹디자인";
+}
+
 export const PACKAGING_META_FIELDS = [
   { key: "project_detail", label: "PROJECT" },
   { key: "category_detail", label: "CATEGORY" },

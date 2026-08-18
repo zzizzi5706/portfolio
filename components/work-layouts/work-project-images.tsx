@@ -1,4 +1,4 @@
-import { isDetailPageCategory, isPackagingCategory, type ProjectCategory } from "@/lib/types";
+import { isDetailPageCategory, isPackagingCategory, isWebDesignCategory, type ProjectCategory } from "@/lib/types";
 import { DetailPageLayout } from "@/components/work-layouts/detail-page-layout";
 import { PackagingLayout } from "@/components/work-layouts/packaging-layout";
 import { WebDesignLayout } from "@/components/work-layouts/web-design-layout";
@@ -14,6 +14,10 @@ export function WorkProjectImages({
 }) {
   if (isDetailPageCategory(category)) {
     return <DetailPageLayout images={images} alt={alt} />;
+  }
+
+  if (isWebDesignCategory(category)) {
+    return <WebDesignLayout images={images} alt={alt} />;
   }
 
   if (isPackagingCategory(category)) {

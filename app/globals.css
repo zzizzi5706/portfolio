@@ -241,15 +241,24 @@ body {
   opacity: 1;
 }
 
-.web-design-images {
-  display: flex;
-  flex-direction: column;
+.web-design-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 20px;
   width: 100%;
   box-sizing: border-box;
-  padding: 16px 28px;
+  padding: 16px 20px;
+  align-items: start;
 }
 
-.web-design-images img {
+.web-design-column {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.web-design-column img {
   display: block;
   width: 100%;
   height: auto;
