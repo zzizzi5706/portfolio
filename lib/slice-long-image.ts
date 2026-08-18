@@ -1,8 +1,9 @@
 import {
   SLICE_CONFIG,
-  cutsToRanges,
-  findGapCenters,
-  selectCutYs,
+  findGaps,
+  gapsToContentRanges,
+  selectCutGaps,
+  trimBlankEdges,
 } from "@/lib/image-slice";
 
 function loadImage(file: File) {
@@ -51,15 +52,20 @@ export async function sliceLongImage(file: File) {
   analysisCtx.drawImage(image, 0, 0, analysisWidth, analysisHeight);
   const { data } = analysisCtx.getImageData(0, 0, analysisWidth, analysisHeight);
 
-  const gapCenters = findGapCenters(data, analysisWidth, analysisHeight).map((y) =>
-    Math.round(y / scale),
-  );
-  const cuts = selectCutYs(image.height, gapCenters);
-  const ranges = cutsToRanges(image.height, cuts);
+  const analysisGaps = findGaps(data, analysisWidth, analysisHeight);
+  const cutGaps = selectCutGaps(analysisHeight, analysisGaps);
+  const analysisRanges = gapsToContentRanges(analysisHeight, cutGaps)
+    .map((range) => trimBlankEdges(data, analysisWidth, analysisHeight, range))
+    .filter((range): range is NonNullable<typeof range> => range !== null);
+  const ranges = analysisRanges.map((range) => ({
+    start: Math.round(range.start / scale),
+    end: Math.round(range.end / scale),
+  }));
 
   const files: File[] = [];
   for (const [index, range] of ranges.entries()) {
     const height = range.end - range.start;
+    if (height < 1) continue;
     const slice = document.createElement("canvas");
     slice.width = image.width;
     slice.height = height;
