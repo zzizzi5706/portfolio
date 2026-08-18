@@ -7,6 +7,7 @@ create table if not exists public.projects (
   category text not null check (category in ('packaging', 'web', 'detail_page')),
   description text,
   thumbnail_url text,
+  -- URL strings, or JSON strings: {"url":"...","width":852,"height":1200}
   images text[] default '{}',
   display_order int default 0,
   brand text,

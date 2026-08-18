@@ -6,14 +6,18 @@ import { WebDesignLayout } from "@/components/work-layouts/web-design-layout";
 export function WorkProjectImages({
   category,
   images,
+  imageSizes,
   alt,
 }: {
   category: ProjectCategory;
   images: string[];
+  imageSizes?: ({ width: number; height: number } | null)[];
   alt: string;
 }) {
   if (isDetailPageCategory(category)) {
-    return <DetailPageLayout images={images} alt={alt} />;
+    return (
+      <DetailPageLayout images={images} imageSizes={imageSizes} alt={alt} />
+    );
   }
 
   if (isWebDesignCategory(category)) {

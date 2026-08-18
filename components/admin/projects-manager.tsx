@@ -3,7 +3,8 @@
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useMemo, useState } from "react";
 import { createBrowserClient } from "@/lib/supabase/client";
-import { mergeImageFiles, sliceLongImage } from "@/lib/slice-long-image";
+import { mergeImageFiles, sliceLongImage, fileImageSize } from "@/lib/slice-long-image";
+import { serializeStoredImage, storedImageUrl } from "@/lib/project-images";
 import { uploadPortfolioImage } from "@/lib/supabase/storage";
 import {
   CATEGORY_LABELS,
@@ -32,7 +33,7 @@ type ProjectForm = {
   images: string[];
   display_order: number;
   thumbnailFile: File | null;
-  galleryFiles: File[];
+  galleryFiles: { file: File; width: number; height: number }[];
 };
 
 const emptyForm: ProjectForm = {
@@ -123,7 +124,14 @@ export function ProjectsManager() {
 
       if (form.galleryFiles.length > 0) {
         const uploaded = await Promise.all(
-          form.galleryFiles.map((file) => uploadPortfolioImage(file, "projects")),
+          form.galleryFiles.map(async (item) => {
+            const url = await uploadPortfolioImage(item.file, "projects");
+            return serializeStoredImage({
+              url,
+              width: item.width,
+              height: item.height,
+            });
+          }),
         );
         imageUrls = [...imageUrls, ...uploaded];
       }
@@ -178,7 +186,7 @@ export function ProjectsManager() {
   }, [form.thumbnailFile, form.thumbnail_url]);
 
   const galleryPreviews = useMemo(
-    () => form.galleryFiles.map((file) => URL.createObjectURL(file)),
+    () => form.galleryFiles.map((item) => URL.createObjectURL(item.file)),
     [form.galleryFiles],
   );
 
@@ -406,15 +414,17 @@ export function ProjectsManager() {
         <div>
           <p className="text-xs text-neutral-500">상세 이미지</p>
           <div className="mt-2 grid grid-cols-4 gap-2">
-            {form.images.map((url) => (
-              <div key={url} className="relative">
-                <img src={url} alt="" className="h-20 w-full object-cover" />
+            {form.images.map((value) => {
+              const src = storedImageUrl(value);
+              return (
+              <div key={value} className="relative">
+                <img src={src} alt="" className="h-20 w-full object-cover" />
                 <button
                   type="button"
                   onClick={() =>
                     setForm((prev) => ({
                       ...prev,
-                      images: prev.images.filter((item) => item !== url),
+                      images: prev.images.filter((item) => item !== value),
                     }))
                   }
                   className="absolute right-1 top-1 bg-white/90 px-1.5 text-[10px]"
@@ -422,9 +432,10 @@ export function ProjectsManager() {
                   삭제
                 </button>
               </div>
-            ))}
-            {form.galleryFiles.map((file, index) => (
-              <div key={`${file.name}-${index}`} className="relative">
+              );
+            })}
+            {form.galleryFiles.map((item, index) => (
+              <div key={`${item.file.name}-${index}`} className="relative">
                 <img
                   src={galleryPreviews[index]}
                   alt=""
@@ -452,11 +463,20 @@ export function ProjectsManager() {
             className="mt-2 block text-sm"
             onChange={(event) => {
               const files = [...(event.target.files ?? [])];
-              setForm((prev) => ({
-                ...prev,
-                galleryFiles: [...prev.galleryFiles, ...files],
-              }));
               event.target.value = "";
+              if (files.length === 0) return;
+              void (async () => {
+                const measured = await Promise.all(
+                  files.map(async (file) => {
+                    const size = await fileImageSize(file);
+                    return { file, ...size };
+                  }),
+                );
+                setForm((prev) => ({
+                  ...prev,
+                  galleryFiles: [...prev.galleryFiles, ...measured],
+                }));
+              })();
             }}
           />
           <div className="mt-6 border-t border-line pt-4">
@@ -506,9 +526,9 @@ export function ProjectsManager() {
             ) : null}
             {form.galleryFiles.length > 1 ? (
               <div className="mt-3 flex flex-wrap gap-2">
-                {form.galleryFiles.slice(0, -1).map((file, index) => (
+                {form.galleryFiles.slice(0, -1).map((item, index) => (
                   <button
-                    key={`${file.name}-merge-${index}`}
+                    key={`${item.file.name}-merge-${index}`}
                     type="button"
                     className="text-[11px] text-neutral-500 underline"
                     onClick={() => {
@@ -517,7 +537,7 @@ export function ProjectsManager() {
                       void (async () => {
                         setSlicing(true);
                         try {
-                          const merged = await mergeImageFiles(file, next);
+                          const merged = await mergeImageFiles(item.file, next.file);
                           setForm((prev) => {
                             const files = [...prev.galleryFiles];
                             files.splice(index, 2, merged);

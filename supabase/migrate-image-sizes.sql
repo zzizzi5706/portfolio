@@ -1,0 +1,5 @@
+-- Detail-page slice sizes are stored in public.projects.images.
+-- Each array item is either a plain URL (legacy) or JSON:
+--   {"url":"https://...","width":852,"height":1200}
+-- New uploads from admin auto-slice write the JSON form.
+-- Existing rows can keep plain URLs; the site falls back to measuring in the browser.

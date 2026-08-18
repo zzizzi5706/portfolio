@@ -9,11 +9,7 @@ import {
   renderedImageHeight,
   splitImagesByTargetHeight,
 } from "@/lib/masonry";
-
-type ImageSize = {
-  width: number;
-  height: number;
-};
+import type { ImageSize } from "@/lib/project-images";
 
 type ColumnImage = {
   src: string;
@@ -44,30 +40,43 @@ function columnWidthFromContainer(el: HTMLElement, columnCount: number) {
 
 export function DetailPageLayout({
   images,
+  imageSizes,
   alt,
 }: {
   images: string[];
+  imageSizes?: (ImageSize | null)[];
   alt: string;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const [sizes, setSizes] = useState<ImageSize[] | null>(null);
+  const [fallbackSizes, setFallbackSizes] = useState<(ImageSize | null)[] | null>(
+    null,
+  );
   const [columnWidth, setColumnWidth] = useState(0);
   const columnCount = detailPageColumnCount(images.length);
+  const storedComplete =
+    images.length > 0 &&
+    (imageSizes?.length ?? 0) >= images.length &&
+    images.every((_, index) => Boolean(imageSizes?.[index]?.width && imageSizes?.[index]?.height));
 
   useEffect(() => {
-    let cancelled = false;
-    if (images.length === 0) {
-      setSizes([]);
+    if (storedComplete || images.length === 0) {
+      setFallbackSizes(null);
       return;
     }
-    setSizes(null);
-    void Promise.all(images.map(loadImageSize)).then((next) => {
-      if (!cancelled) setSizes(next);
+    let cancelled = false;
+    void Promise.all(
+      images.map(async (src, index) => {
+        const stored = imageSizes?.[index];
+        if (stored?.width && stored.height) return stored;
+        return loadImageSize(src);
+      }),
+    ).then((next) => {
+      if (!cancelled) setFallbackSizes(next);
     });
     return () => {
       cancelled = true;
     };
-  }, [images]);
+  }, [imageSizes, images, storedComplete]);
 
   useLayoutEffect(() => {
     const el = wrapRef.current;
@@ -82,8 +91,12 @@ export function DetailPageLayout({
     return () => observer.disconnect();
   }, [columnCount]);
 
+  const resolvedSizes = storedComplete
+    ? (imageSizes as ImageSize[])
+    : fallbackSizes;
+
   const columns = useMemo(() => {
-    if (!sizes || sizes.length !== images.length || columnWidth <= 0) {
+    if (!resolvedSizes || resolvedSizes.length !== images.length || columnWidth <= 0) {
       return Array.from({ length: columnCount }, () => [] as ColumnImage[]);
     }
 
@@ -91,15 +104,15 @@ export function DetailPageLayout({
       images.map((src, originalIndex) => ({
         item: { src, originalIndex },
         height: renderedImageHeight(
-          sizes[originalIndex].width,
-          sizes[originalIndex].height,
+          resolvedSizes[originalIndex].width,
+          resolvedSizes[originalIndex].height,
           columnWidth,
         ),
       })),
       columnCount,
       DETAIL_PAGE_IMAGE_GAP,
     );
-  }, [columnCount, columnWidth, images, sizes]);
+  }, [columnCount, columnWidth, images, resolvedSizes]);
 
   if (images.length === 0) {
     return (

@@ -6,6 +6,12 @@ import {
   trimBlankEdges,
 } from "@/lib/image-slice";
 
+export type ImageFileWithSize = {
+  file: File;
+  width: number;
+  height: number;
+};
+
 function loadImage(file: File) {
   return new Promise<HTMLImageElement>((resolve, reject) => {
     const url = URL.createObjectURL(file);
@@ -71,7 +77,7 @@ export async function sliceLongImage(file: File) {
     SLICE_CONFIG.MIN_SLICE_HEIGHT,
   );
 
-  const files: File[] = [];
+  const files: ImageFileWithSize[] = [];
   for (const [index, group] of groups.entries()) {
     const height = group.reduce((sum, range) => sum + (range.end - range.start), 0);
     if (height < 1) continue;
@@ -96,9 +102,14 @@ export async function sliceLongImage(file: File) {
       );
       y += piece;
     }
-    files.push(
-      await canvasToFile(slice, `${file.name.replace(/\.[^.]+$/, "")}-${index + 1}.jpg`),
-    );
+    files.push({
+      file: await canvasToFile(
+        slice,
+        `${file.name.replace(/\.[^.]+$/, "")}-${index + 1}.jpg`,
+      ),
+      width: slice.width,
+      height: slice.height,
+    });
   }
 
   return files;
@@ -117,5 +128,20 @@ export async function mergeImageFiles(first: File, second: File) {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(top, 0, 0);
   ctx.drawImage(bottom, 0, top.height);
-  return canvasToFile(canvas, first.name.replace(/-\d+\.jpg$/, "") + "-merged.jpg");
+  return {
+    file: await canvasToFile(
+      canvas,
+      first.name.replace(/-\d+\.jpg$/, "") + "-merged.jpg",
+    ),
+    width: canvas.width,
+    height: canvas.height,
+  };
+}
+
+export async function fileImageSize(file: File) {
+  const image = await loadImage(file);
+  return {
+    width: Math.max(1, image.naturalWidth || image.width),
+    height: Math.max(1, image.naturalHeight || image.height),
+  };
 }
