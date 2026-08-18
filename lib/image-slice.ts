@@ -1,4 +1,16 @@
-export const SLICE_CONFIG = {
+export type SliceConfig = {
+  WHITE_THRESHOLD: number;
+  VARIANCE_THRESHOLD: number;
+  SAMPLE_STEP: number;
+  MIN_GAP_HEIGHT: number;
+  MIN_SLICE_HEIGHT: number;
+  MAX_SLICE_HEIGHT: number;
+  FALLBACK_SLICE_HEIGHT: number;
+  FALLBACK_MIN_IMAGE_HEIGHT: number;
+  ANALYSIS_MAX_WIDTH: number;
+};
+
+export const SLICE_CONFIG: SliceConfig = {
   WHITE_THRESHOLD: 240,
   VARIANCE_THRESHOLD: 18,
   SAMPLE_STEP: 5,
@@ -8,7 +20,7 @@ export const SLICE_CONFIG = {
   FALLBACK_SLICE_HEIGHT: 1500,
   FALLBACK_MIN_IMAGE_HEIGHT: 5000,
   ANALYSIS_MAX_WIDTH: 480,
-} as const;
+};
 
 export type ImageGap = {
   start: number;

@@ -105,8 +105,8 @@ export function DetailPageLayout({
       srcs.map((src, originalIndex) => ({
         item: { src, originalIndex },
         height: renderedImageHeight(
-          resolvedSizes[originalIndex].width,
-          resolvedSizes[originalIndex].height,
+          resolvedSizes[originalIndex]!.width,
+          resolvedSizes[originalIndex]!.height,
           columnWidth,
         ),
       })),
