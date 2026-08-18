@@ -162,6 +162,85 @@ body {
   object-fit: initial;
 }
 
+.lightbox-trigger {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+.lightbox-trigger img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.image-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.image-lightbox.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.image-lightbox-photo {
+  display: block;
+  max-width: 90vw;
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.image-lightbox-close,
+.image-lightbox-nav {
+  position: absolute;
+  border: 0;
+  background: none;
+  color: #fff;
+  cursor: pointer;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+.image-lightbox-close {
+  top: 16px;
+  right: 20px;
+  font-size: 36px;
+}
+
+.image-lightbox-nav {
+  top: 50%;
+  font-size: 48px;
+  transform: translateY(-50%);
+  padding: 8px 12px;
+}
+
+.image-lightbox-prev {
+  left: 8px;
+}
+
+.image-lightbox-next {
+  right: 8px;
+}
+
+.image-lightbox-close:hover,
+.image-lightbox-nav:hover {
+  opacity: 1;
+}
+
 .web-design-images {
   display: flex;
   flex-direction: column;

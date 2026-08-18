@@ -1,4 +1,7 @@
+"use client";
+
 /* eslint-disable @next/next/no-img-element */
+import { ImageLightboxRoot } from "@/components/image-lightbox";
 import { detailPageColumnCount, splitImagesRoundRobin } from "@/lib/masonry";
 
 export function DetailPageLayout({
@@ -18,23 +21,37 @@ export function DetailPageLayout({
   const columns = splitImagesRoundRobin(images, columnCount);
 
   return (
-    <div
-      className="detail-page-columns"
-      style={{ gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))` }}
-    >
-      {columns.map((columnImages, columnIndex) => (
-        <div key={columnIndex} className="detail-page-column">
-          {columnImages.map((src, imageIndex) => (
-            <img
-              key={`${src}-${imageIndex}`}
-              src={src}
-              alt={alt}
-              loading={columnIndex === 0 && imageIndex === 0 ? "eager" : "lazy"}
-              decoding="async"
-            />
+    <ImageLightboxRoot images={images} alt={alt}>
+      {(open) => (
+        <div
+          className="detail-page-columns"
+          style={{ gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))` }}
+        >
+          {columns.map((columnImages, columnIndex) => (
+            <div key={columnIndex} className="detail-page-column">
+              {columnImages.map((src, imageIndex) => {
+                const originalIndex = imageIndex * columnCount + columnIndex;
+                return (
+                  <button
+                    key={`${src}-${imageIndex}`}
+                    type="button"
+                    className="lightbox-trigger"
+                    onClick={() => open(originalIndex)}
+                    aria-label={`${alt} 확대 보기`}
+                  >
+                    <img
+                      src={src}
+                      alt={alt}
+                      loading={columnIndex === 0 && imageIndex === 0 ? "eager" : "lazy"}
+                      decoding="async"
+                    />
+                  </button>
+                );
+              })}
+            </div>
           ))}
         </div>
-      ))}
-    </div>
+      )}
+    </ImageLightboxRoot>
   );
 }
