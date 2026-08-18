@@ -25,10 +25,17 @@ export function DetailPageLayout({
       {(open) => (
         <div
           className="detail-page-columns"
-          style={{ gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))` }}
+          style={{
+            gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
+            alignItems: "start",
+          }}
         >
           {columns.map((columnImages, columnIndex) => (
-            <div key={columnIndex} className="detail-page-column">
+            <div
+              key={columnIndex}
+              className="detail-page-column"
+              style={{ alignSelf: "start", margin: 0 }}
+            >
               {columnImages.map((src, imageIndex) => {
                 const originalIndex = imageIndex * columnCount + columnIndex;
                 return (
