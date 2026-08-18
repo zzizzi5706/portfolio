@@ -31,6 +31,7 @@ export type Project = {
   channel: string | null;
   scope: string | null;
   role: string | null;
+  concept_summary: string | null;
 };
 
 export type Career = {

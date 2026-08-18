@@ -10,12 +10,12 @@ function placeholderCareers(): Career[] {
 }
 
 const PROJECT_COLUMNS =
-  "id, title, category, description, thumbnail_url, images, display_order, brand, participation, project_year, project_detail, category_detail, channel, scope, role";
+  "id, title, category, description, thumbnail_url, images, display_order, brand, participation, project_year, project_detail, category_detail, channel, scope, role, concept_summary";
 
 const PROJECT_COLUMNS_BASIC =
   "id, title, category, description, thumbnail_url, images, display_order, brand, participation, project_year";
 
-function withPackagingMeta(project: Omit<Project, "project_detail" | "category_detail" | "channel" | "scope" | "role"> & Partial<Project>): Project {
+function withPackagingMeta(project: Omit<Project, "project_detail" | "category_detail" | "channel" | "scope" | "role" | "concept_summary"> & Partial<Project>): Project {
   return {
     ...project,
     project_detail: project.project_detail ?? null,
@@ -23,6 +23,7 @@ function withPackagingMeta(project: Omit<Project, "project_detail" | "category_d
     channel: project.channel ?? null,
     scope: project.scope ?? null,
     role: project.role ?? null,
+    concept_summary: project.concept_summary ?? null,
   };
 }
 

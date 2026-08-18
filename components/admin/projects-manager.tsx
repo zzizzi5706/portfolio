@@ -29,6 +29,7 @@ type ProjectForm = {
   channel: string;
   scope: string;
   role: string;
+  concept_summary: string;
   thumbnail_url: string;
   images: string[];
   display_order: number;
@@ -48,6 +49,7 @@ const emptyForm: ProjectForm = {
   channel: "",
   scope: "",
   role: "",
+  concept_summary: "",
   thumbnail_url: "",
   images: [],
   display_order: 0,
@@ -101,6 +103,7 @@ export function ProjectsManager() {
       channel: project.channel ?? "",
       scope: project.scope ?? "",
       role: project.role ?? "",
+      concept_summary: project.concept_summary ?? "",
       thumbnail_url: project.thumbnail_url ?? "",
       images: project.images ?? [],
       display_order: project.display_order ?? 0,
@@ -148,6 +151,7 @@ export function ProjectsManager() {
         channel: form.channel || null,
         scope: form.scope || null,
         role: form.role || null,
+        concept_summary: form.concept_summary || null,
         thumbnail_url: thumbnailUrl || null,
         images: imageUrls,
         display_order: Number(form.display_order) || 0,
@@ -284,6 +288,17 @@ export function ProjectsManager() {
               </option>
             ))}
           </select>
+        </label>
+        <label className="block text-xs text-neutral-500">
+          디자인 컨셉 한 줄
+          <input
+            placeholder="지친 피부에 활력을 주는 청량한 블루 톤으로 브랜드 신뢰도를 높임"
+            value={form.concept_summary}
+            onChange={(event) =>
+              setForm((prev) => ({ ...prev, concept_summary: event.target.value }))
+            }
+            className={inputClass}
+          />
         </label>
         <label className="block text-xs text-neutral-500">
           설명

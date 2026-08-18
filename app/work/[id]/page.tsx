@@ -83,6 +83,11 @@ export default async function WorkPage({
           <h1 className="mt-3 max-w-full break-words text-5xl font-medium leading-[1.12] tracking-tight md:text-6xl min-[1200px]:text-[3.6rem]">
             {project.title}
           </h1>
+          {project.concept_summary ? (
+            <p className="mt-4 max-w-full break-words text-lg italic leading-relaxed text-neutral-600 md:text-xl">
+              {project.concept_summary}
+            </p>
+          ) : null}
           {project.description ? (
             <p className="mt-5 max-w-full break-words whitespace-pre-line text-base leading-8 text-neutral-500 md:text-lg md:leading-9">
               {project.description}

@@ -23,7 +23,8 @@ alter table public.projects
   add column if not exists category_detail text,
   add column if not exists channel text,
   add column if not exists scope text,
-  add column if not exists role text;
+  add column if not exists role text,
+  add column if not exists concept_summary text;
 
 create table if not exists public.careers (
   id uuid primary key default gen_random_uuid(),
