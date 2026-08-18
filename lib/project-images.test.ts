@@ -53,6 +53,11 @@ assert(
     ]),
   "mixed image list urls",
 );
-assert(projectImageList([{ url: "https://example.com/a.jpg" }])[0].url === "https://example.com/a.jpg", "object list");
+assert(
+  storedImageUrl(
+    '"{\\"url\\":\\"https://example.com/a.jpg\\",\\"width\\":852,\\"height\\":1200}"',
+  ) === "https://example.com/a.jpg",
+  "double-encoded json url",
+);
 
 console.log("project-images ok");

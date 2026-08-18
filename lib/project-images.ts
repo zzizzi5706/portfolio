@@ -24,15 +24,24 @@ export function parseStoredImage(value: unknown): StoredProjectImage {
   }
 
   if (typeof value !== "string" || !value) return { url: "" };
-  const trimmed = value.trim();
-  if (trimmed.startsWith("{")) {
+  const trimmed = value.trim().replace(/^\uFEFF/, "");
+  if (trimmed.startsWith('"')) {
     try {
       return parseStoredImage(JSON.parse(trimmed));
     } catch {
       /* fall through */
     }
   }
-  return { url: value };
+  if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (typeof parsed === "string") return parseStoredImage(parsed);
+      return parseStoredImage(parsed);
+    } catch {
+      /* fall through */
+    }
+  }
+  return { url: trimmed };
 }
 
 export function serializeStoredImage(image: StoredProjectImage) {
@@ -46,7 +55,6 @@ export function serializeStoredImage(image: StoredProjectImage) {
   return image.url;
 }
 
-/** Resolve a gallery item to an image URL. Accepts a plain URL, a JSON string, or `{ url, width, height }`. */
 /** Resolve a gallery item to an image URL. Accepts a plain URL, a JSON string, or `{ url, width, height }`. */
 export function storedImageUrl(value: unknown) {
   return parseStoredImage(value).url;
