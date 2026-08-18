@@ -7,6 +7,7 @@ const COLUMN_COUNT = 3;
 const COLUMN_GAP = 18;
 const IMAGE_GAP = 4;
 const PADDING_X = 40;
+const HEIGHT_TIE_PX = 20;
 
 type SizedImage = {
   src: string;
@@ -38,15 +39,19 @@ function distributeToShortestColumns(
 
   for (const image of images) {
     const renderedHeight = columnWidth * (image.height / image.width);
-    let shortestIndex = 0;
-    for (let i = 1; i < COLUMN_COUNT; i += 1) {
-      if (heights[i] < heights[shortestIndex]) shortestIndex = i;
+    const minHeight = Math.min(...heights);
+    let targetIndex = 0;
+    for (let i = 0; i < COLUMN_COUNT; i += 1) {
+      if (heights[i] <= minHeight + HEIGHT_TIE_PX) {
+        targetIndex = i;
+        break;
+      }
     }
-    if (columns[shortestIndex].length > 0) {
-      heights[shortestIndex] += IMAGE_GAP;
+    if (columns[targetIndex].length > 0) {
+      heights[targetIndex] += IMAGE_GAP;
     }
-    columns[shortestIndex].push(image);
-    heights[shortestIndex] += renderedHeight;
+    columns[targetIndex].push(image);
+    heights[targetIndex] += renderedHeight;
   }
 
   return columns;
